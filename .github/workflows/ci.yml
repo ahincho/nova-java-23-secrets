@@ -12,6 +12,11 @@ on:
     branches:
       - main
 
+# El token de Actions de este repositorio es de solo lectura por defecto. Cada job pide lo que
+# necesita, en vez de heredar un permiso de escritura que casi ninguno usa.
+permissions:
+  contents: read
+
 jobs:
   build:
     if: github.event_name == 'pull_request'
@@ -42,6 +47,10 @@ jobs:
 
   sbom:
     if: github.event_name == 'pull_request'
+    # reusable-sbom.yml declara contents: write para adjuntar el SBOM a un release; sin este
+    # permiso el workflow entero no llega a arrancar.
+    permissions:
+      contents: write
     uses: ahincho/nova-shared-02-pipelines/.github/workflows/reusable-sbom.yml@main
     with:
       build-tool: gradle
