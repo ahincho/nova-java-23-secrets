@@ -98,12 +98,12 @@ subprojects {
         scanConfigurations = listOf("compileClasspath", "runtimeClasspath")
         // Falsos positivos documentados en docs/owasp-suppressions.json de nova-shared-02-pipelines.
         // reusable-owasp-check.yml genera el XML con los CVE que lista ci.yml y deja su ruta en
-        // NOVA_OWASP_SUPPRESSIONS_FILE; sin esa variable no se suprime nada.
-        System.getenv("NOVA_OWASP_SUPPRESSIONS_FILE")?.let { path ->
-            if (File(path).exists()) {
-                suppressionFiles.add(path)
-            }
-        }
+        // NOVA_OWASP_SUPPRESSIONS_FILE; sin esa variable no se suprime nada. Cuando ci.yml no lista
+        // ninguno, la variable llega vacía, y en Java 25 File("").exists() es true: por eso se pide
+        // un archivo y no solo que la ruta exista.
+        System.getenv("NOVA_OWASP_SUPPRESSIONS_FILE")
+            ?.takeIf { it.isNotBlank() && File(it).isFile }
+            ?.let { suppressionFiles.add(it) }
     }
 
     configure<PublishingExtension> {
