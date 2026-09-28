@@ -1,0 +1,15 @@
+{
+  "packages": {
+    ".": {
+      "component": "nova-secrets",
+      "package-name": "pe.edu.nova.java.libs:nova-secrets",
+      "release-type": "java",
+      "include-component-in-tag": false,
+      "skip-snapshot": true,
+      "bump-minor-pre-major": true,
+      "bump-patch-for-minor-pre-major": true,
+      "draft": false,
+      "prerelease": false
+    }
+  }
+}
