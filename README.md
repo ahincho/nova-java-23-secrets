@@ -13,7 +13,7 @@ versión— en [ADR-041](https://github.com/ahincho/nova-shared-01-docs/blob/mai
 
 | Módulo | `groupId` | Qué es | Estado |
 |---|---|---|---|
-| `nova-secrets` | `pe.edu.nova.java.libs` | el contrato, sin Spring ni proveedores, y la implementación por defecto: el entorno del proceso | en construcción |
+| `nova-secrets` | `pe.edu.nova.java.libs` | el contrato, sin Spring ni proveedores, y la implementación por defecto: el entorno del proceso | listo, sin publicar |
 | `nova-secrets-vault` | `pe.edu.nova.java.libs` | Vault, motor KV versión 2 | planificado |
 | `nova-secrets-aws-secrets-manager` | `pe.edu.nova.java.libs` | AWS Secrets Manager | planificado |
 | `nova-secrets-spring-boot-starter` | `pe.edu.nova.java.starters` | conecta cualquier fuente con Spring Boot y aplica las reglas | planificado |
@@ -57,6 +57,48 @@ Hay que abrirlo para que cada clave sea una propiedad, y Nova lo hace en un solo
 `Secret.fromJson()`. Lo usan la fuente del entorno, cuando ECS inyecta el secreto entero en una
 variable, y el adaptador de Secrets Manager, cuando el servicio lo pide al arrancar. Las dos rutas
 dan exactamente las mismas propiedades.
+
+## La fuente del entorno
+
+Es la implementación por defecto y viene en `nova-secrets`. Lee las variables de entorno que traen
+un objeto JSON, que es como ECS inyecta un secreto entero. Qué variables lee se decide sin nombrar
+ningún secreto en el código:
+
+| Cómo | Dónde se declara | Para qué |
+|---|---|---|
+| una por una | `nova.secrets.env.variables` | los secretos que el servicio conoce |
+| por prefijo | `nova.secrets.env.prefix` | la convención de la organización; no tiene valor por defecto y va en el starter de la organización |
+| en tiempo de ejecución | la variable `NOVA_SECRETS` | la salida de emergencia de quien opera el servicio: agrega un secreto sin tocar el código ni publicar una versión |
+
+Una variable ausente o en blanco no es un error. Una que no trae un objeto JSON corta el arranque.
+Es la misma semántica de `unfoldSecrets()` en NestJS, con los mismos nombres, así que operaciones
+configura igual un servicio de cualquiera de los dos stacks.
+
+## Agregar un almacén
+
+Un almacén nuevo es un módulo con dos clases y un archivo, sin tocar el contrato ni los
+conectores:
+
+```java
+public final class MyStoreSecretSourceProvider implements SecretSourceProvider {
+
+    @Override
+    public String name() {
+        return "my-store";
+    }
+
+    @Override
+    public SecretSource create(SecretSettings settings) {
+        String address = settings.get("nova.secrets.my-store.address")
+                .orElseThrow(() -> new SecretSourceException("my-store", "needs nova.secrets.my-store.address"));
+        return reference -> fetch(address, reference).map(json -> Secret.fromJson(reference, json));
+    }
+}
+```
+
+Se registra en `META-INF/services/pe.edu.nova.java.libs.secrets.SecretSourceProvider`, y
+`SecretSources` lo encuentra con `ServiceLoader` en cualquier framework. Si el almacén guarda
+JSON, `Secret.fromJson()` ya aplica las reglas: solo escalares, y ningún error cita el contenido.
 
 ## Desarrollo
 
