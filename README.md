@@ -16,10 +16,41 @@ versión— en [ADR-041](https://github.com/ahincho/nova-shared-01-docs/blob/mai
 | `nova-secrets` | `pe.edu.nova.java.libs` | el contrato, sin Spring ni proveedores, y la implementación por defecto: el entorno del proceso | listo, sin publicar |
 | `nova-secrets-vault` | `pe.edu.nova.java.libs` | Vault, motor KV versión 2 | planificado |
 | `nova-secrets-aws-secrets-manager` | `pe.edu.nova.java.libs` | AWS Secrets Manager | planificado |
-| `nova-secrets-spring-boot-starter` | `pe.edu.nova.java.starters` | conecta cualquier fuente con Spring Boot y aplica las reglas | planificado |
+| `nova-secrets-spring-boot-starter` | `pe.edu.nova.java.starters` | conecta cualquier fuente con Spring Boot y aplica las reglas | listo, sin publicar |
 
 Todos se publican en `https://maven.pkg.github.com/ahincho/nova-java-23-secrets` con la misma
 versión.
+
+## Cómo se usa en Spring Boot
+
+El servicio declara el starter y, si lee de un almacén, su adaptador. Después lee sus secretos como
+cualquier propiedad:
+
+```yaml
+spring:
+  config:
+    import: nova-secrets:vault:ms-course        # o nova-secrets:aws-secrets-manager:prod/ms-course/db
+  datasource:
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+```
+
+- **La fuente del entorno se aplica sola** cuando hay algo que desdoblar: variables nombradas en
+  `nova.secrets.env.variables`, las que empiezan con `nova.secrets.env.prefix` o las que agrega
+  `NOVA_SECRETS`. No hace falta ninguna importación.
+- **Un almacén se pide con `spring.config.import`**, como `nova-secrets:<fuente>:<referencia>`. Todo
+  lo que va después de la fuente es la referencia, así que un ARN de AWS se escribe tal cual. Con
+  `optional:` delante, un secreto que no existe no corta el arranque; sin él, sí.
+- **Un secreto se comporta como una variable de entorno.** `DB_PASSWORD` se encuentra también como
+  `db.password`, así que funciona igual con `${DB_PASSWORD}` y con `@ConfigurationProperties`.
+- **Un secreto pisa a una variable suelta con el mismo nombre.** Es lo que hace NestJS, y va contra
+  la costumbre de Spring, donde una variable de entorno gana. Con `nova.secrets.override=false` el
+  secreto queda justo después de las variables de entorno.
+- **Sus valores nunca se muestran en `/actuator/env`**, aunque el servicio active
+  `management.endpoint.env.show-values`.
+
+Si un servicio importa varios secretos del mismo almacén, la fuente se crea una sola vez: con Vault,
+por ejemplo, inicia sesión una vez y no una por secreto.
 
 ## Por qué un contrato propio
 
