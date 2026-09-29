@@ -136,7 +136,7 @@ jobs:
         uses: ahincho/nova-shared-02-pipelines/.github/actions/nova-verify-publication@main
         with:
           group-id: pe.edu.nova.java.libs
-          artifact-ids: nova-secrets
+          artifact-ids: nova-secrets nova-secrets-vault
           version: ${{ steps.detect.outputs.tag }}
           token: ${{ github.token }}
 

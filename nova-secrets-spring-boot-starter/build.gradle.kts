@@ -12,4 +12,7 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
     testImplementation("org.springframework.boot:spring-boot-actuator:$springBootVersion")
+    // La prueba de punta a punta: una aplicación Spring Boot que lee su secreto de un Vault real.
+    testImplementation(project(":nova-secrets-vault"))
+    testImplementation("org.testcontainers:testcontainers-vault:2.0.5")
 }

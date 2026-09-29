@@ -2,5 +2,5 @@
 rootProject.name = "nova-secrets"
 
 include("nova-secrets")
-
+include("nova-secrets-vault")
 include("nova-secrets-spring-boot-starter")

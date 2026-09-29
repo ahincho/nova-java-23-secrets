@@ -80,9 +80,16 @@ class NovaSecretsConfigDataTest {
 
     @Test
     void anUnknownStoreListsTheAvailableOnes() {
-        assertThatThrownBy(() -> run("--spring.config.import=nova-secrets:vault:ms-course"))
+        assertThatThrownBy(() -> run("--spring.config.import=nova-secrets:key-vault:ms-course"))
                 .satisfies(error -> assertThat(cause(error, IllegalArgumentException.class))
-                        .hasMessageStartingWith("No secret source named 'vault'. Available: [env, fake]"));
+                        .hasMessageStartingWith("No secret source named 'key-vault'. Available: [env, fake, vault]"));
+    }
+
+    @Test
+    void aStoreWithoutItsSettingsSaysWhatIsMissing() {
+        assertThatThrownBy(() -> run("--spring.config.import=nova-secrets:vault:ms-course"))
+                .satisfies(error -> assertThat(cause(error, SecretSourceException.class))
+                        .hasMessage("Secret source vault needs an address: set nova.secrets.vault.address or VAULT_ADDR"));
     }
 
     @Test
