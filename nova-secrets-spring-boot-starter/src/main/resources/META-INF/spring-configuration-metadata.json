@@ -7,6 +7,10 @@
     {
       "name": "nova.secrets.vault",
       "description": "La fuente de Vault, que trae nova-secrets-vault."
+    },
+    {
+      "name": "nova.secrets.aws-secrets-manager",
+      "description": "La fuente de AWS Secrets Manager, que trae nova-secrets-aws-secrets-manager."
     }
   ],
   "properties": [
@@ -63,6 +67,22 @@
       "type": "java.lang.String",
       "defaultValue": "5s",
       "description": "Cuánto se espera a Vault en cada llamada, como 500ms, 5s o PT5S. Si no contesta, el arranque se corta."
+    },
+    {
+      "name": "nova.secrets.aws-secrets-manager.region",
+      "type": "java.lang.String",
+      "description": "La región de AWS. Por defecto toma AWS_REGION y después la cadena del SDK."
+    },
+    {
+      "name": "nova.secrets.aws-secrets-manager.endpoint",
+      "type": "java.lang.String",
+      "description": "Otra dirección para Secrets Manager, solo para un emulador como Moto o LocalStack."
+    },
+    {
+      "name": "nova.secrets.aws-secrets-manager.timeout",
+      "type": "java.lang.String",
+      "defaultValue": "5s",
+      "description": "Cuánto se espera a AWS en cada llamada, reintentos incluidos, como 500ms, 5s o PT5S."
     }
   ]
 }

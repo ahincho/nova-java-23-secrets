@@ -2,9 +2,7 @@ package pe.edu.nova.java.libs.secrets.vault;
 
 import java.net.URI;
 import java.time.Duration;
-import java.time.format.DateTimeParseException;
 import java.util.Optional;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import pe.edu.nova.java.libs.secrets.SecretSettings;
 import pe.edu.nova.java.libs.secrets.SecretSourceException;
@@ -26,8 +24,6 @@ record VaultSettings(URI address, String mount, Duration timeout, VaultAuthentic
     /** Una ruta de Vault: segmentos de letras, dígitos, punto, guion y guion bajo, separados por barras. */
     static final Pattern PATH = Pattern.compile("[A-Za-z0-9_-][A-Za-z0-9._-]*(/[A-Za-z0-9_-][A-Za-z0-9._-]*)*");
 
-    private static final Pattern SIMPLE_DURATION = Pattern.compile("(\\d+)\\s*(ms|s|m)");
-
     static VaultSettings from(SecretSettings settings) {
         String address = first(settings, PREFIX + "address", "vault.addr")
                 .orElseThrow(() -> invalid("needs an address: set nova.secrets.vault.address or VAULT_ADDR"));
@@ -44,7 +40,7 @@ record VaultSettings(URI address, String mount, Duration timeout, VaultAuthentic
         if (!PATH.matcher(mount).matches()) {
             throw invalid("has a mount that is not a Vault path");
         }
-        Duration timeout = settings.get(PREFIX + "timeout").map(VaultSettings::duration).orElse(DEFAULT_TIMEOUT);
+        Duration timeout = settings.getDuration(PREFIX + "timeout").orElse(DEFAULT_TIMEOUT);
         return new VaultSettings(uri, mount, timeout, authentication(settings));
     }
 
@@ -69,25 +65,6 @@ record VaultSettings(URI address, String mount, Duration timeout, VaultAuthentic
     private static Optional<String> first(SecretSettings settings, String key, String fallback) {
         return settings.get(key).filter(value -> !value.isBlank())
                 .or(() -> settings.get(fallback).filter(value -> !value.isBlank()));
-    }
-
-    /** Acepta {@code 500ms}, {@code 5s}, {@code 1m} o la forma ISO-8601, como {@code PT5S}. */
-    static Duration duration(String raw) {
-        String value = raw.trim();
-        Matcher simple = SIMPLE_DURATION.matcher(value);
-        if (simple.matches()) {
-            long amount = Long.parseLong(simple.group(1));
-            return switch (simple.group(2)) {
-                case "ms" -> Duration.ofMillis(amount);
-                case "s" -> Duration.ofSeconds(amount);
-                default -> Duration.ofMinutes(amount);
-            };
-        }
-        try {
-            return Duration.parse(value);
-        } catch (DateTimeParseException e) {
-            throw invalid("has a timeout that is not a duration, such as 5s or PT5S");
-        }
     }
 
     private static SecretSourceException invalid(String reason) {

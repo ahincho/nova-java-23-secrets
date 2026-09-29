@@ -1,9 +1,13 @@
 package pe.edu.nova.java.libs.secrets;
 
+import java.time.Duration;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * La configuración de una fuente, leída sin saber de qué framework viene.
@@ -32,6 +36,18 @@ public interface SecretSettings {
      */
     default List<String> getList(String key) {
         return get(key).map(SecretSettings::splitList).orElse(List.of());
+    }
+
+    /**
+     * El valor de una clave que es una duración, como el timeout de un almacén.
+     *
+     * @param key la clave
+     * @return la duración, o vacío si la clave no está configurada o está en blanco
+     * @throws SecretSourceException si el valor no es una duración; acepta {@code 500ms}, {@code 5s},
+     *                               {@code 1m} o la forma ISO-8601, como {@code PT5S}
+     */
+    default Optional<Duration> getDuration(String key) {
+        return get(key).map(String::trim).filter(value -> !value.isEmpty()).map(value -> parseDuration(key, value));
     }
 
     /**
@@ -65,5 +81,22 @@ public interface SecretSettings {
                 .map(String::trim)
                 .filter(item -> !item.isEmpty())
                 .toList();
+    }
+
+    private static Duration parseDuration(String key, String value) {
+        Matcher simple = Pattern.compile("(\\d+)\\s*(ms|s|m)").matcher(value);
+        if (simple.matches()) {
+            long amount = Long.parseLong(simple.group(1));
+            return switch (simple.group(2)) {
+                case "ms" -> Duration.ofMillis(amount);
+                case "s" -> Duration.ofSeconds(amount);
+                default -> Duration.ofMinutes(amount);
+            };
+        }
+        try {
+            return Duration.parse(value);
+        } catch (DateTimeParseException e) {
+            throw new SecretSourceException("setting " + key, "is not a duration, such as 5s or PT5S");
+        }
     }
 }

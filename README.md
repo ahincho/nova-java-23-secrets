@@ -15,7 +15,7 @@ versión— en [ADR-041](https://github.com/ahincho/nova-shared-01-docs/blob/mai
 |---|---|---|---|
 | `nova-secrets` | `pe.edu.nova.java.libs` | el contrato, sin Spring ni proveedores, y la implementación por defecto: el entorno del proceso | listo, sin publicar |
 | `nova-secrets-vault` | `pe.edu.nova.java.libs` | Vault, motor KV versión 2 | listo, sin publicar |
-| `nova-secrets-aws-secrets-manager` | `pe.edu.nova.java.libs` | AWS Secrets Manager | planificado |
+| `nova-secrets-aws-secrets-manager` | `pe.edu.nova.java.libs` | AWS Secrets Manager | listo, sin publicar |
 | `nova-secrets-spring-boot-starter` | `pe.edu.nova.java.starters` | conecta cualquier fuente con Spring Boot y aplica las reglas | listo, sin publicar |
 
 Todos se publican en `https://maven.pkg.github.com/ahincho/nova-java-23-secrets` con la misma
@@ -128,6 +128,38 @@ nova:
 Las pruebas corren contra un Vault real (`hashicorp/vault:2.1.1`) con Testcontainers, incluida una
 aplicación Spring Boot que importa su secreto sin una línea de código de Vault. Si la máquina no
 tiene Docker, esas pruebas se saltan.
+
+## AWS Secrets Manager
+
+`nova-secrets-aws-secrets-manager` pide el secreto con `GetSecretValue`. La referencia es su nombre o
+su ARN, que se escribe tal cual aunque tenga dos puntos:
+
+```yaml
+spring:
+  config:
+    import: nova-secrets:aws-secrets-manager:prod/ms-course/db
+```
+
+| Propiedad | Por defecto | Para qué |
+|---|---|---|
+| `nova.secrets.aws-secrets-manager.region` | `AWS_REGION`, después la cadena del SDK | la región |
+| `nova.secrets.aws-secrets-manager.endpoint` | — | solo para un emulador, como Moto o LocalStack |
+| `nova.secrets.aws-secrets-manager.timeout` | `5s` | cuánto se espera en cada llamada, reintentos incluidos |
+
+- **Las credenciales salen de la cadena por defecto del SDK**: el entorno, un perfil o, dentro de
+  ECS, el rol de la tarea. El adaptador no recibe ninguna credencial por configuración.
+- **El secreto se abre con `Secret.fromJson()`**, la misma función que usa la fuente del entorno
+  cuando ECS lo inyecta en una variable. Las dos rutas dan las mismas propiedades, así que pasar de
+  una a otra no cambia nada más que de dónde sale el secreto.
+- **Los errores:**
+  - un secreto que no existe es un secreto ausente;
+  - un permiso negado dice que el rol no puede leerlo, y lleva el código de AWS;
+  - un secreto guardado como binario corta el arranque, porque no se puede abrir como propiedades.
+- **Usa el cliente HTTP liviano del SDK**, basado en `HttpURLConnection`. Los de Apache y Netty no
+  entran en el classpath del servicio.
+
+Las pruebas corren contra Moto (`motoserver/moto:5.2.3`), un emulador de AWS de código abierto que no
+pide cuenta.
 
 ## La fuente del entorno
 

@@ -79,12 +79,11 @@ class VaultSettingsTest {
     }
 
     @Test
-    void timeoutsAcceptTheShortAndTheIsoForms() {
-        assertEquals(Duration.ofMillis(500), VaultSettings.duration("500ms"));
-        assertEquals(Duration.ofSeconds(2), VaultSettings.duration("2s"));
-        assertEquals(Duration.ofMinutes(1), VaultSettings.duration("1m"));
-        assertEquals(Duration.ofSeconds(3), VaultSettings.duration("PT3S"));
-        assertThrows(SecretSourceException.class, () -> VaultSettings.duration("soon"));
+    void theTimeoutIsConfigurable() {
+        VaultSettings settings = VaultSettings.from(settings(Map.of(
+                "vault.addr", "http://vault:8200", "vault.token", "t", "nova.secrets.vault.timeout", "500ms")));
+
+        assertEquals(Duration.ofMillis(500), settings.timeout());
     }
 
     @Test
