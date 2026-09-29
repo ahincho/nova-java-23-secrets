@@ -1,8 +1,8 @@
 plugins {
     // La raíz solo agrega módulos. Aplica quality para formatear sus propios scripts e instalar el hook
     // de commits; los módulos aplican library, que trae la compilación, la publicación y OWASP (ADR-044).
-    id("pe.edu.nova.java.quality") version "1.1.0"
-    id("pe.edu.nova.java.library") version "1.1.0" apply false
+    id("pe.edu.nova.java.quality") version "1.1.1"
+    id("pe.edu.nova.java.library") version "1.1.1" apply false
     id("net.nemerosa.versioning") version "4.0.1"
     id("info.solidsoft.pitest") version "1.19.0-rc.1" apply false
 }
