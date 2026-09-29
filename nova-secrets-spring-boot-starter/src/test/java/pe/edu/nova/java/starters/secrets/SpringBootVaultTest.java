@@ -26,8 +26,7 @@ class SpringBootVaultTest {
     private static VaultContainer<?> vault;
 
     @Configuration(proxyBeanMethods = false)
-    static class CourseService {
-    }
+    static class CourseService {}
 
     @BeforeAll
     static void start() {
@@ -56,8 +55,12 @@ class SpringBootVaultTest {
                 "--nova.secrets.vault.address=" + vault.getHttpHostAddress(),
                 "--nova.secrets.vault.token=" + ROOT_TOKEN,
                 "--spring.datasource.password=${DB_PASSWORD}")) {
-            assertThat(context.getEnvironment().getProperty("spring.datasource.password")).isEqualTo("s3cr3t");
-            assertThat(Binder.get(context.getEnvironment()).bind("db.username", String.class).get()).isEqualTo("course");
+            assertThat(context.getEnvironment().getProperty("spring.datasource.password"))
+                    .isEqualTo("s3cr3t");
+            assertThat(Binder.get(context.getEnvironment())
+                            .bind("db.username", String.class)
+                            .get())
+                    .isEqualTo("course");
         }
     }
 }

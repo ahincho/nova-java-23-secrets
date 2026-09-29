@@ -13,8 +13,7 @@ public final class EnvironmentSecretSourceProvider implements SecretSourceProvid
     public static final String NAME = "env";
 
     /** Crea el proveedor; lo instancia {@link java.util.ServiceLoader}. */
-    public EnvironmentSecretSourceProvider() {
-    }
+    public EnvironmentSecretSourceProvider() {}
 
     @Override
     public String name() {

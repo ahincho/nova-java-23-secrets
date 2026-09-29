@@ -15,8 +15,7 @@ import pe.edu.nova.java.libs.secrets.SecretSettings;
  */
 final class SpringSecretSettings {
 
-    private SpringSecretSettings() {
-    }
+    private SpringSecretSettings() {}
 
     static SecretSettings of(PropertyResolver properties) {
         return key -> Optional.ofNullable(properties.getProperty(key));

@@ -18,8 +18,8 @@ class VaultSettingsTest {
 
     @Test
     void theDefaultsFollowTheDevelopmentServer() {
-        VaultSettings settings = VaultSettings.from(settings(Map.of(
-                "nova.secrets.vault.address", "http://127.0.0.1:8200/", "nova.secrets.vault.token", "t")));
+        VaultSettings settings = VaultSettings.from(settings(
+                Map.of("nova.secrets.vault.address", "http://127.0.0.1:8200/", "nova.secrets.vault.token", "t")));
 
         assertEquals(URI.create("http://127.0.0.1:8200"), settings.address());
         assertEquals("secret", settings.mount());
@@ -29,7 +29,8 @@ class VaultSettingsTest {
 
     @Test
     void theAddressAndTokenFallBackToTheVaultConvention() {
-        VaultSettings settings = VaultSettings.from(settings(Map.of("vault.addr", "https://vault.internal", "vault.token", "t")));
+        VaultSettings settings =
+                VaultSettings.from(settings(Map.of("vault.addr", "https://vault.internal", "vault.token", "t")));
 
         assertEquals(URI.create("https://vault.internal"), settings.address());
         assertEquals(new VaultAuthentication.Token("t"), settings.authentication());
@@ -38,29 +39,39 @@ class VaultSettingsTest {
     @Test
     void anAppRoleWinsOverAToken() {
         VaultSettings settings = VaultSettings.from(settings(Map.of(
-                "vault.addr", "http://vault:8200", "vault.token", "t",
-                "nova.secrets.vault.app-role.role-id", "role", "nova.secrets.vault.app-role.secret-id", "id")));
+                "vault.addr",
+                "http://vault:8200",
+                "vault.token",
+                "t",
+                "nova.secrets.vault.app-role.role-id",
+                "role",
+                "nova.secrets.vault.app-role.secret-id",
+                "id")));
 
         assertEquals(new VaultAuthentication.AppRole("role", "id", "approle"), settings.authentication());
     }
 
     @Test
     void anAddressIsRequired() {
-        SecretSourceException error = assertThrows(SecretSourceException.class,
-                () -> VaultSettings.from(settings(Map.of("vault.token", "t"))));
+        SecretSourceException error = assertThrows(
+                SecretSourceException.class, () -> VaultSettings.from(settings(Map.of("vault.token", "t"))));
 
-        assertEquals("Secret source vault needs an address: set nova.secrets.vault.address or VAULT_ADDR", error.getMessage());
+        assertEquals(
+                "Secret source vault needs an address: set nova.secrets.vault.address or VAULT_ADDR",
+                error.getMessage());
     }
 
     @Test
     void anAddressMustBeHttp() {
-        assertThrows(SecretSourceException.class,
+        assertThrows(
+                SecretSourceException.class,
                 () -> VaultSettings.from(settings(Map.of("vault.addr", "ftp://vault", "vault.token", "t"))));
     }
 
     @Test
     void someAuthenticationIsRequired() {
-        SecretSourceException error = assertThrows(SecretSourceException.class,
+        SecretSourceException error = assertThrows(
+                SecretSourceException.class,
                 () -> VaultSettings.from(settings(Map.of("vault.addr", "http://vault:8200"))));
 
         assertTrue(error.getMessage().contains("needs a token or an AppRole"), error.getMessage());
@@ -68,29 +79,39 @@ class VaultSettingsTest {
 
     @Test
     void aRoleIdNeedsItsSecretId() {
-        assertThrows(SecretSourceException.class, () -> VaultSettings.from(settings(Map.of(
-                "vault.addr", "http://vault:8200", "nova.secrets.vault.app-role.role-id", "role"))));
+        assertThrows(
+                SecretSourceException.class,
+                () -> VaultSettings.from(settings(
+                        Map.of("vault.addr", "http://vault:8200", "nova.secrets.vault.app-role.role-id", "role"))));
     }
 
     @Test
     void aMountMustBeAVaultPath() {
-        assertThrows(SecretSourceException.class, () -> VaultSettings.from(settings(Map.of(
-                "vault.addr", "http://vault:8200", "vault.token", "t", "nova.secrets.vault.mount", "../sys"))));
+        assertThrows(
+                SecretSourceException.class,
+                () -> VaultSettings.from(settings(Map.of(
+                        "vault.addr", "http://vault:8200", "vault.token", "t", "nova.secrets.vault.mount", "../sys"))));
     }
 
     @Test
     void theTimeoutIsConfigurable() {
-        VaultSettings settings = VaultSettings.from(settings(Map.of(
-                "vault.addr", "http://vault:8200", "vault.token", "t", "nova.secrets.vault.timeout", "500ms")));
+        VaultSettings settings = VaultSettings.from(settings(
+                Map.of("vault.addr", "http://vault:8200", "vault.token", "t", "nova.secrets.vault.timeout", "500ms")));
 
         assertEquals(Duration.ofMillis(500), settings.timeout());
     }
 
     @Test
     void credentialsNeverAppearInToString() {
-        VaultSettings token = VaultSettings.from(settings(Map.of("vault.addr", "http://vault:8200", "vault.token", "s.root-token")));
-        VaultSettings appRole = VaultSettings.from(settings(Map.of("vault.addr", "http://vault:8200",
-                "nova.secrets.vault.app-role.role-id", "my-role-id", "nova.secrets.vault.app-role.secret-id", "my-secret-id")));
+        VaultSettings token =
+                VaultSettings.from(settings(Map.of("vault.addr", "http://vault:8200", "vault.token", "s.root-token")));
+        VaultSettings appRole = VaultSettings.from(settings(Map.of(
+                "vault.addr",
+                "http://vault:8200",
+                "nova.secrets.vault.app-role.role-id",
+                "my-role-id",
+                "nova.secrets.vault.app-role.secret-id",
+                "my-secret-id")));
 
         assertFalse(token.toString().contains("s.root-token"), token.toString());
         assertFalse(appRole.toString().contains("my-role-id"), appRole.toString());

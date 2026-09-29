@@ -22,13 +22,15 @@ class NovaSecretsEnvironmentPostProcessorTest {
 
     @Test
     void theSecretsOfThePrefixBecomeProperties() {
-        StandardEnvironment environment = environment(Map.of("SECRET_DB", SECRET_DB), Map.of("nova.secrets.env.prefix", "SECRET_"));
+        StandardEnvironment environment =
+                environment(Map.of("SECRET_DB", SECRET_DB), Map.of("nova.secrets.env.prefix", "SECRET_"));
 
         processor.postProcessEnvironment(environment, new SpringApplication());
 
         assertThat(environment.getProperty("DB_USERNAME")).isEqualTo("course");
         assertThat(environment.getProperty("db.username")).isEqualTo("course");
-        assertThat(Binder.get(environment).bind("db.password", String.class).get()).isEqualTo("fresh");
+        assertThat(Binder.get(environment).bind("db.password", String.class).get())
+                .isEqualTo("fresh");
     }
 
     @Test
@@ -43,7 +45,8 @@ class NovaSecretsEnvironmentPostProcessorTest {
 
     @Test
     void withoutOverrideTheLooseVariableWins() {
-        StandardEnvironment environment = environment(Map.of("SECRET_DB", SECRET_DB, "DB_PASSWORD", "stale"),
+        StandardEnvironment environment = environment(
+                Map.of("SECRET_DB", SECRET_DB, "DB_PASSWORD", "stale"),
                 Map.of("nova.secrets.env.prefix", "SECRET_", "nova.secrets.override", "false"));
 
         processor.postProcessEnvironment(environment, new SpringApplication());
@@ -54,7 +57,8 @@ class NovaSecretsEnvironmentPostProcessorTest {
 
     @Test
     void theEscapeHatchAddsASecretWithoutConfiguration() {
-        StandardEnvironment environment = environment(Map.of("LEGACY", "{\"API_KEY\": \"k\"}", "NOVA_SECRETS", "LEGACY"), Map.of());
+        StandardEnvironment environment =
+                environment(Map.of("LEGACY", "{\"API_KEY\": \"k\"}", "NOVA_SECRETS", "LEGACY"), Map.of());
 
         processor.postProcessEnvironment(environment, new SpringApplication());
 
@@ -67,13 +71,17 @@ class NovaSecretsEnvironmentPostProcessorTest {
 
         processor.postProcessEnvironment(environment, new SpringApplication());
 
-        assertThat(environment.getPropertySources().contains(NovaSecretsEnvironmentPostProcessor.ENVIRONMENT_SOURCE_NAME)).isFalse();
+        assertThat(environment
+                        .getPropertySources()
+                        .contains(NovaSecretsEnvironmentPostProcessor.ENVIRONMENT_SOURCE_NAME))
+                .isFalse();
         assertThat(environment.getProperty("DB_PASSWORD")).isNull();
     }
 
     @Test
     void aVariableThatIsNotJsonStopsTheStartupWithoutTheContent() {
-        StandardEnvironment environment = environment(Map.of("SECRET_DB", "password=fresh"), Map.of("nova.secrets.env.prefix", "SECRET_"));
+        StandardEnvironment environment =
+                environment(Map.of("SECRET_DB", "password=fresh"), Map.of("nova.secrets.env.prefix", "SECRET_"));
 
         assertThatThrownBy(() -> processor.postProcessEnvironment(environment, new SpringApplication()))
                 .isInstanceOf(SecretSourceException.class)
@@ -83,7 +91,9 @@ class NovaSecretsEnvironmentPostProcessorTest {
     @Test
     void importedSecretsAreMovedAboveTheEnvironmentToo() {
         StandardEnvironment environment = environment(Map.of("LEGACY_API_KEY", "stale"), Map.of());
-        environment.getPropertySources().addLast(SecretPropertySources.of("nova-secrets:fake:legacy", Map.of("LEGACY_API_KEY", "k")));
+        environment
+                .getPropertySources()
+                .addLast(SecretPropertySources.of("nova-secrets:fake:legacy", Map.of("LEGACY_API_KEY", "k")));
 
         processor.postProcessEnvironment(environment, new SpringApplication());
 
@@ -92,8 +102,12 @@ class NovaSecretsEnvironmentPostProcessorTest {
 
     private static StandardEnvironment environment(Map<String, String> variables, Map<String, String> application) {
         StandardEnvironment environment = new StandardEnvironment();
-        environment.getPropertySources().replace(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME,
-                new SystemEnvironmentPropertySource(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, new HashMap<>(variables)));
+        environment
+                .getPropertySources()
+                .replace(
+                        StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME,
+                        new SystemEnvironmentPropertySource(
+                                StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, new HashMap<>(variables)));
         environment.getPropertySources().addLast(new MapPropertySource("application", new HashMap<>(application)));
         return environment;
     }

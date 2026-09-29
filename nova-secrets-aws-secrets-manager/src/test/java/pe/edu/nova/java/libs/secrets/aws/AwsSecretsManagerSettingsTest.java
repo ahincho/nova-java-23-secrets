@@ -25,10 +25,15 @@ class AwsSecretsManagerSettingsTest {
 
     @Test
     void theRegionFallsBackToTheAwsConvention() {
-        assertEquals(Optional.of("us-east-1"),
-                AwsSecretsManagerSettings.from(SecretSettings.of(Map.of("aws.region", "us-east-1"))).region());
-        assertEquals(Optional.of("sa-east-1"), AwsSecretsManagerSettings.from(SecretSettings.of(Map.of(
-                "aws.region", "us-east-1", "nova.secrets.aws-secrets-manager.region", "sa-east-1"))).region());
+        assertEquals(
+                Optional.of("us-east-1"),
+                AwsSecretsManagerSettings.from(SecretSettings.of(Map.of("aws.region", "us-east-1")))
+                        .region());
+        assertEquals(
+                Optional.of("sa-east-1"),
+                AwsSecretsManagerSettings.from(SecretSettings.of(Map.of(
+                                "aws.region", "us-east-1", "nova.secrets.aws-secrets-manager.region", "sa-east-1")))
+                        .region());
     }
 
     @Test
@@ -43,8 +48,10 @@ class AwsSecretsManagerSettingsTest {
 
     @Test
     void anEndpointMustBeHttp() {
-        SecretSourceException error = assertThrows(SecretSourceException.class, () -> AwsSecretsManagerSettings.from(
-                SecretSettings.of(Map.of("nova.secrets.aws-secrets-manager.endpoint", "localhost:5000"))));
+        SecretSourceException error = assertThrows(
+                SecretSourceException.class,
+                () -> AwsSecretsManagerSettings.from(
+                        SecretSettings.of(Map.of("nova.secrets.aws-secrets-manager.endpoint", "localhost:5000"))));
 
         assertEquals("Secret source aws-secrets-manager needs an http or https endpoint", error.getMessage());
     }

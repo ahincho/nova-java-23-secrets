@@ -17,8 +17,7 @@ import pe.edu.nova.java.libs.secrets.SecretSourceException;
 class NovaSecretsConfigDataTest {
 
     @Configuration(proxyBeanMethods = false)
-    static class EmptyApplication {
-    }
+    static class EmptyApplication {}
 
     @BeforeEach
     void resetCounter() {
@@ -29,21 +28,25 @@ class NovaSecretsConfigDataTest {
     void anImportedSecretBecomesProperties() {
         try (ConfigurableApplicationContext context = run("--spring.config.import=nova-secrets:fake:ms-course")) {
             assertThat(context.getEnvironment().getProperty("DB_PASSWORD")).isEqualTo("s3cr3t");
-            assertThat(context.getEnvironment().getPropertySources().contains("nova-secrets:fake:ms-course")).isTrue();
+            assertThat(context.getEnvironment().getPropertySources().contains("nova-secrets:fake:ms-course"))
+                    .isTrue();
         }
     }
 
     @Test
     void anImportedSecretBindsLikeAnEnvironmentVariable() {
         try (ConfigurableApplicationContext context = run("--spring.config.import=nova-secrets:fake:ms-course")) {
-            assertThat(Binder.get(context.getEnvironment()).bind("db.username", String.class).get()).isEqualTo("course");
+            assertThat(Binder.get(context.getEnvironment())
+                            .bind("db.username", String.class)
+                            .get())
+                    .isEqualTo("course");
         }
     }
 
     @Test
     void theSourceIsCreatedOnceForEveryImportOfTheSameStore() {
         try (ConfigurableApplicationContext context =
-                     run("--spring.config.import=nova-secrets:fake:ms-course,nova-secrets:fake:legacy")) {
+                run("--spring.config.import=nova-secrets:fake:ms-course,nova-secrets:fake:legacy")) {
             assertThat(context.getEnvironment().getProperty("LEGACY_API_KEY")).isEqualTo("k");
             assertThat(FakeSecretSourceProvider.CREATED).hasValue(1);
         }
@@ -52,15 +55,17 @@ class NovaSecretsConfigDataTest {
     @Test
     void theStoreReadsItsSettingsFromTheConfiguration() {
         try (ConfigurableApplicationContext context =
-                     run("--fake.greeting=hola", "--spring.config.import=nova-secrets:fake:settings")) {
+                run("--fake.greeting=hola", "--spring.config.import=nova-secrets:fake:settings")) {
             assertThat(context.getEnvironment().getProperty("GREETING")).isEqualTo("hola");
         }
     }
 
     @Test
     void anOptionalSecretThatDoesNotExistIsSkipped() {
-        try (ConfigurableApplicationContext context = run("--spring.config.import=optional:nova-secrets:fake:missing")) {
-            assertThat(context.getEnvironment().getPropertySources().contains("nova-secrets:fake:missing")).isFalse();
+        try (ConfigurableApplicationContext context =
+                run("--spring.config.import=optional:nova-secrets:fake:missing")) {
+            assertThat(context.getEnvironment().getPropertySources().contains("nova-secrets:fake:missing"))
+                    .isFalse();
         }
     }
 
@@ -89,7 +94,8 @@ class NovaSecretsConfigDataTest {
     void aStoreWithoutItsSettingsSaysWhatIsMissing() {
         assertThatThrownBy(() -> run("--spring.config.import=nova-secrets:vault:ms-course"))
                 .satisfies(error -> assertThat(cause(error, SecretSourceException.class))
-                        .hasMessage("Secret source vault needs an address: set nova.secrets.vault.address or VAULT_ADDR"));
+                        .hasMessage(
+                                "Secret source vault needs an address: set nova.secrets.vault.address or VAULT_ADDR"));
     }
 
     @Test

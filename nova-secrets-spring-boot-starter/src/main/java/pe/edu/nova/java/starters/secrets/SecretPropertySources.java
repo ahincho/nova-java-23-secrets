@@ -20,8 +20,7 @@ final class SecretPropertySources {
     /** La propiedad que decide si un secreto pisa a una variable suelta con el mismo nombre. */
     static final String OVERRIDE_PROPERTY = "nova.secrets.override";
 
-    private SecretPropertySources() {
-    }
+    private SecretPropertySources() {}
 
     /**
      * Una fuente de propiedades con las entradas de un secreto.

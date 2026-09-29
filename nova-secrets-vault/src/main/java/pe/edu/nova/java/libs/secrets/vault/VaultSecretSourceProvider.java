@@ -24,8 +24,7 @@ public final class VaultSecretSourceProvider implements SecretSourceProvider {
     public static final String NAME = "vault";
 
     /** Crea el proveedor; lo instancia {@link java.util.ServiceLoader}. */
-    public VaultSecretSourceProvider() {
-    }
+    public VaultSecretSourceProvider() {}
 
     @Override
     public String name() {

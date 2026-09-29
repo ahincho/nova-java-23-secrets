@@ -36,13 +36,19 @@ class EnvironmentSecretsTest {
                 EnvironmentSecrets.VARIABLES_SETTING, "LEGACY_CREDENTIALS",
                 EnvironmentSecrets.PREFIX_SETTING, "SECRET_"));
         Map<String, String> environment = Map.of(
-                "SECRET_LEGACY", LEGACY,
-                "SECRET_DB", DB,
-                "LEGACY_CREDENTIALS", LEGACY,
-                "OPS_ADDED", LEGACY,
-                EnvironmentSecrets.VARIABLES_VARIABLE, "OPS_ADDED, SECRET_DB");
+                "SECRET_LEGACY",
+                LEGACY,
+                "SECRET_DB",
+                DB,
+                "LEGACY_CREDENTIALS",
+                LEGACY,
+                "OPS_ADDED",
+                LEGACY,
+                EnvironmentSecrets.VARIABLES_VARIABLE,
+                "OPS_ADDED, SECRET_DB");
 
-        assertEquals(List.of("LEGACY_CREDENTIALS", "OPS_ADDED", "SECRET_DB", "SECRET_LEGACY"),
+        assertEquals(
+                List.of("LEGACY_CREDENTIALS", "OPS_ADDED", "SECRET_DB", "SECRET_LEGACY"),
                 EnvironmentSecrets.variables(settings, environment));
     }
 
@@ -56,14 +62,17 @@ class EnvironmentSecretsTest {
 
     @Test
     void unfoldReturnsTheSecretsThatArePresent() {
-        SecretSettings settings = SecretSettings.of(Map.of(EnvironmentSecrets.VARIABLES_SETTING, "SECRET_DB,SECRET_MISSING,SECRET_BLANK"));
+        SecretSettings settings = SecretSettings.of(
+                Map.of(EnvironmentSecrets.VARIABLES_SETTING, "SECRET_DB,SECRET_MISSING,SECRET_BLANK"));
         Map<String, String> environment = Map.of("SECRET_DB", DB, "SECRET_BLANK", "   ");
 
         List<Secret> secrets = EnvironmentSecrets.unfold(settings, environment);
 
         assertEquals(1, secrets.size());
         assertEquals("SECRET_DB", secrets.getFirst().reference());
-        assertEquals(Map.of("username", "course", "password", "s3cr3t"), secrets.getFirst().entries());
+        assertEquals(
+                Map.of("username", "course", "password", "s3cr3t"),
+                secrets.getFirst().entries());
     }
 
     @Test
@@ -71,8 +80,8 @@ class EnvironmentSecretsTest {
         SecretSettings settings = SecretSettings.of(Map.of(EnvironmentSecrets.PREFIX_SETTING, "SECRET_"));
         Map<String, String> environment = Map.of("SECRET_DB", "username=course password=s3cr3t");
 
-        SecretSourceException error = assertThrows(SecretSourceException.class,
-                () -> EnvironmentSecrets.unfold(settings, environment));
+        SecretSourceException error =
+                assertThrows(SecretSourceException.class, () -> EnvironmentSecrets.unfold(settings, environment));
 
         assertEquals("SECRET_DB", error.reference());
         assertTrue(!error.getMessage().contains("s3cr3t"));

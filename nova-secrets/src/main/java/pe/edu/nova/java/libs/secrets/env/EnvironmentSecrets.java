@@ -33,8 +33,7 @@ public final class EnvironmentSecrets {
      */
     public static final String PREFIX_SETTING = "nova.secrets.env.prefix";
 
-    private EnvironmentSecrets() {
-    }
+    private EnvironmentSecrets() {}
 
     /**
      * Las variables que este servicio va a desdoblar, sin repetir.

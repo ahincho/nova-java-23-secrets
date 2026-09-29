@@ -61,10 +61,12 @@ final class VaultSecretSource implements SecretSource {
         return switch (response.statusCode()) {
             case 200 -> data(reference, response.body());
             case 404 -> Optional.empty();
-            case 403 -> throw new SecretSourceException(reference,
-                    "was refused by Vault (403): the token or the AppRole cannot read it");
-            default -> throw new SecretSourceException(reference,
-                    "could not be read from Vault (status " + response.statusCode() + ")");
+            case 403 ->
+                throw new SecretSourceException(
+                        reference, "was refused by Vault (403): the token or the AppRole cannot read it");
+            default ->
+                throw new SecretSourceException(
+                        reference, "could not be read from Vault (status " + response.statusCode() + ")");
         };
     }
 
@@ -89,21 +91,24 @@ final class VaultSecretSource implements SecretSource {
                 .build();
         HttpResponse<String> response = send(request, reference);
         if (response.statusCode() != 200) {
-            throw new SecretSourceException(reference,
+            throw new SecretSourceException(
+                    reference,
                     "could not be read: the AppRole login was refused by Vault (status " + response.statusCode() + ")");
         }
         return clientToken(response.body())
-                .orElseThrow(() -> new SecretSourceException(reference,
-                        "could not be read: the AppRole login did not return a token"));
+                .orElseThrow(() -> new SecretSourceException(
+                        reference, "could not be read: the AppRole login did not return a token"));
     }
 
     private HttpResponse<String> send(HttpRequest request, String reference) {
         try {
             return http.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (HttpTimeoutException e) {
-            throw new SecretSourceException(reference, "could not be read: Vault did not answer within " + settings.timeout(), e);
+            throw new SecretSourceException(
+                    reference, "could not be read: Vault did not answer within " + settings.timeout(), e);
         } catch (IOException e) {
-            throw new SecretSourceException(reference, "could not be read: Vault is not reachable at " + settings.address(), e);
+            throw new SecretSourceException(
+                    reference, "could not be read: Vault is not reachable at " + settings.address(), e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new SecretSourceException(reference, "could not be read: the thread was interrupted", e);

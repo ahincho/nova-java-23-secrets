@@ -17,8 +17,7 @@ import pe.edu.nova.java.libs.secrets.Secret;
 public class NovaSecretsConfigDataLoader implements ConfigDataLoader<SecretConfigDataResource> {
 
     /** Crea el loader; lo instancia Spring Boot. */
-    public NovaSecretsConfigDataLoader() {
-    }
+    public NovaSecretsConfigDataLoader() {}
 
     @Override
     public ConfigData load(ConfigDataLoaderContext context, SecretConfigDataResource resource) {

@@ -19,8 +19,7 @@ import org.springframework.context.annotation.Bean;
 public class NovaSecretsAutoConfiguration {
 
     /** Crea la auto-configuración; la instancia Spring Boot. */
-    public NovaSecretsAutoConfiguration() {
-    }
+    public NovaSecretsAutoConfiguration() {}
 
     /**
      * La función que oculta los valores de un secreto.

@@ -30,8 +30,7 @@ public final class AwsSecretsManagerSecretSourceProvider implements SecretSource
     public static final String NAME = "aws-secrets-manager";
 
     /** Crea el proveedor; lo instancia {@link java.util.ServiceLoader}. */
-    public AwsSecretsManagerSecretSourceProvider() {
-    }
+    public AwsSecretsManagerSecretSourceProvider() {}
 
     @Override
     public String name() {
@@ -53,7 +52,8 @@ public final class AwsSecretsManagerSecretSourceProvider implements SecretSource
         try {
             return new AwsSecretsManagerSecretSource(builder.build(), aws.timeout());
         } catch (SdkClientException e) {
-            throw AwsSecretsManagerSettings.invalid("needs a region: set nova.secrets.aws-secrets-manager.region or AWS_REGION");
+            throw AwsSecretsManagerSettings.invalid(
+                    "needs a region: set nova.secrets.aws-secrets-manager.region or AWS_REGION");
         }
     }
 }

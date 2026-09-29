@@ -33,10 +33,12 @@ record VaultSettings(URI address, String mount, Duration timeout, VaultAuthentic
         } catch (IllegalArgumentException e) {
             throw invalid("has an address that is not a URI");
         }
-        if (uri.getScheme() == null || !(uri.getScheme().equals("http") || uri.getScheme().equals("https"))) {
+        if (uri.getScheme() == null
+                || !(uri.getScheme().equals("http") || uri.getScheme().equals("https"))) {
             throw invalid("needs an http or https address");
         }
-        String mount = settings.get(PREFIX + "mount").filter(value -> !value.isBlank()).orElse(DEFAULT_MOUNT);
+        String mount =
+                settings.get(PREFIX + "mount").filter(value -> !value.isBlank()).orElse(DEFAULT_MOUNT);
         if (!PATH.matcher(mount).matches()) {
             throw invalid("has a mount that is not a Vault path");
         }
@@ -47,9 +49,11 @@ record VaultSettings(URI address, String mount, Duration timeout, VaultAuthentic
     private static VaultAuthentication authentication(SecretSettings settings) {
         Optional<String> roleId = settings.get(PREFIX + "app-role.role-id").filter(value -> !value.isBlank());
         if (roleId.isPresent()) {
-            String secretId = settings.get(PREFIX + "app-role.secret-id").filter(value -> !value.isBlank())
+            String secretId = settings.get(PREFIX + "app-role.secret-id")
+                    .filter(value -> !value.isBlank())
                     .orElseThrow(() -> invalid("has an AppRole role-id without its secret-id"));
-            String mount = settings.get(PREFIX + "app-role.mount").filter(value -> !value.isBlank())
+            String mount = settings.get(PREFIX + "app-role.mount")
+                    .filter(value -> !value.isBlank())
                     .orElse(DEFAULT_APP_ROLE_MOUNT);
             if (!PATH.matcher(mount).matches()) {
                 throw invalid("has an AppRole mount that is not a Vault path");
@@ -63,7 +67,8 @@ record VaultSettings(URI address, String mount, Duration timeout, VaultAuthentic
     }
 
     private static Optional<String> first(SecretSettings settings, String key, String fallback) {
-        return settings.get(key).filter(value -> !value.isBlank())
+        return settings.get(key)
+                .filter(value -> !value.isBlank())
                 .or(() -> settings.get(fallback).filter(value -> !value.isBlank()));
     }
 

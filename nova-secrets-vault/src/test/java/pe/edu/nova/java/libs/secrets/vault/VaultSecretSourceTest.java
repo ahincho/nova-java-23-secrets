@@ -83,7 +83,9 @@ class VaultSecretSourceTest {
     void aSecretIsReadWithTheToken() {
         Optional<Secret> secret = source(Map.of("vault.token", "root")).find("ms-course");
 
-        assertEquals(Map.of("DB_USERNAME", "course", "DB_PASSWORD", "s3cr3t"), secret.orElseThrow().entries());
+        assertEquals(
+                Map.of("DB_USERNAME", "course", "DB_PASSWORD", "s3cr3t"),
+                secret.orElseThrow().entries());
         assertEquals(List.of("root"), tokens);
     }
 
@@ -95,15 +97,19 @@ class VaultSecretSourceTest {
 
     @Test
     void aRefusalNamesThePathAndNothingElse() {
-        SecretSourceException error = assertThrows(SecretSourceException.class,
+        SecretSourceException error = assertThrows(
+                SecretSourceException.class,
                 () -> source(Map.of("vault.token", "root")).find("forbidden"));
 
-        assertEquals("Secret forbidden was refused by Vault (403): the token or the AppRole cannot read it", error.getMessage());
+        assertEquals(
+                "Secret forbidden was refused by Vault (403): the token or the AppRole cannot read it",
+                error.getMessage());
     }
 
     @Test
     void aServerErrorStopsTheRead() {
-        SecretSourceException error = assertThrows(SecretSourceException.class,
+        SecretSourceException error = assertThrows(
+                SecretSourceException.class,
                 () -> source(Map.of("vault.token", "root")).find("broken"));
 
         assertEquals("Secret broken could not be read from Vault (status 500)", error.getMessage());
@@ -111,7 +117,8 @@ class VaultSecretSourceTest {
 
     @Test
     void aResponseThatCannotBeParsedNeverQuotesIt() {
-        SecretSourceException error = assertThrows(SecretSourceException.class,
+        SecretSourceException error = assertThrows(
+                SecretSourceException.class,
                 () -> source(Map.of("vault.token", "root")).find("not-json"));
 
         assertEquals("Secret not-json could not be parsed from the Vault response", error.getMessage());
@@ -133,19 +140,21 @@ class VaultSecretSourceTest {
         try (ServerSocket socket = new ServerSocket(0)) {
             closedPort = socket.getLocalPort();
         }
-        SecretSource source = SecretSources.provider("vault").create(SecretSettings.of(Map.of(
-                "vault.addr", "http://127.0.0.1:" + closedPort, "vault.token", "root")));
+        SecretSource source = SecretSources.provider("vault")
+                .create(SecretSettings.of(
+                        Map.of("vault.addr", "http://127.0.0.1:" + closedPort, "vault.token", "root")));
 
         SecretSourceException error = assertThrows(SecretSourceException.class, () -> source.find("ms-course"));
 
-        assertEquals("Secret ms-course could not be read: Vault is not reachable at http://127.0.0.1:" + closedPort,
+        assertEquals(
+                "Secret ms-course could not be read: Vault is not reachable at http://127.0.0.1:" + closedPort,
                 error.getMessage());
     }
 
     @Test
     void anAppRoleLogsInOnceAndUsesItsToken() {
-        SecretSource source = source(Map.of(
-                "nova.secrets.vault.app-role.role-id", "role", "nova.secrets.vault.app-role.secret-id", "id"));
+        SecretSource source = source(
+                Map.of("nova.secrets.vault.app-role.role-id", "role", "nova.secrets.vault.app-role.secret-id", "id"));
 
         source.find("ms-course");
         source.find("missing");
@@ -161,7 +170,8 @@ class VaultSecretSourceTest {
 
         SecretSourceException error = assertThrows(SecretSourceException.class, () -> source.find("ms-course"));
 
-        assertEquals("Secret ms-course could not be read: the AppRole login was refused by Vault (status 400)",
+        assertEquals(
+                "Secret ms-course could not be read: the AppRole login was refused by Vault (status 400)",
                 error.getMessage());
     }
 
@@ -177,7 +187,9 @@ class VaultSecretSourceTest {
 
     private SecretSource source(Map<String, String> values) {
         Map<String, String> settings = new HashMap<>(values);
-        settings.put("nova.secrets.vault.address", "http://127.0.0.1:" + server.getAddress().getPort());
+        settings.put(
+                "nova.secrets.vault.address",
+                "http://127.0.0.1:" + server.getAddress().getPort());
         return SecretSources.provider("vault").create(SecretSettings.of(settings));
     }
 
