@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/ahincho/nova-java-23-secrets/compare/v1.0.0...v1.0.1) (2026-09-29)
+
+
+### Documentation
+
+* describe the toolchain in the README ([bd9f452](https://github.com/ahincho/nova-java-23-secrets/commit/bd9f452dd92cb583b8adc416d997e196ad6f3427))
+
 ## 1.0.0 (2026-09-29)
 
 
