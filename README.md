@@ -14,7 +14,7 @@ versión— en [ADR-041](https://github.com/ahincho/nova-shared-01-docs/blob/mai
 | Módulo | `groupId` | Qué es | Estado |
 |---|---|---|---|
 | `nova-secrets` | `pe.edu.nova.java.libs` | el contrato, sin Spring ni proveedores, y la implementación por defecto: el entorno del proceso | listo, sin publicar |
-| `nova-secrets-vault` | `pe.edu.nova.java.libs` | Vault, motor KV versión 2 | planificado |
+| `nova-secrets-vault` | `pe.edu.nova.java.libs` | Vault, motor KV versión 2 | listo, sin publicar |
 | `nova-secrets-aws-secrets-manager` | `pe.edu.nova.java.libs` | AWS Secrets Manager | planificado |
 | `nova-secrets-spring-boot-starter` | `pe.edu.nova.java.starters` | conecta cualquier fuente con Spring Boot y aplica las reglas | listo, sin publicar |
 
@@ -88,6 +88,46 @@ Hay que abrirlo para que cada clave sea una propiedad, y Nova lo hace en un solo
 `Secret.fromJson()`. Lo usan la fuente del entorno, cuando ECS inyecta el secreto entero en una
 variable, y el adaptador de Secrets Manager, cuando el servicio lo pide al arrancar. Las dos rutas
 dan exactamente las mismas propiedades.
+
+## Vault
+
+`nova-secrets-vault` lee el motor KV versión 2 con la API HTTP de Vault y el cliente HTTP del JDK,
+sin un cliente de terceros. La referencia es la ruta del secreto dentro del motor:
+
+```yaml
+spring:
+  config:
+    import: nova-secrets:vault:ms-course     # lee secret/data/ms-course
+nova:
+  secrets:
+    vault:
+      address: https://vault.internal:8200    # por defecto, VAULT_ADDR
+      app-role:
+        role-id: ${VAULT_ROLE_ID}
+        secret-id: ${VAULT_SECRET_ID}
+```
+
+| Propiedad | Por defecto | Para qué |
+|---|---|---|
+| `nova.secrets.vault.address` | `VAULT_ADDR` | la dirección, http o https |
+| `nova.secrets.vault.token` | `VAULT_TOKEN` | un token fijo, lo habitual con el Vault de desarrollo |
+| `nova.secrets.vault.app-role.role-id` y `secret-id` | — | AppRole; si hay un `role-id`, gana sobre el token |
+| `nova.secrets.vault.app-role.mount` | `approle` | dónde está montado AppRole |
+| `nova.secrets.vault.mount` | `secret` | el motor KV versión 2 |
+| `nova.secrets.vault.timeout` | `5s` | cuánto se espera a Vault en cada llamada |
+
+- Un secreto que Vault no tiene es un secreto ausente: con `optional:` se salta y sin él corta el
+  arranque.
+- Un 403 dice que el token o el AppRole no pueden leerlo. Un timeout dice cuánto se esperó.
+- Ningún error cita la respuesta, porque la respuesta trae el secreto.
+- Con AppRole se inicia sesión una sola vez, la primera vez que se lee un secreto.
+- Los redireccionamientos no se siguen, para que el token no viaje a una dirección que el servicio
+  no configuró.
+- Ni el token ni el `secret-id` aparecen en un `toString()`.
+
+Las pruebas corren contra un Vault real (`hashicorp/vault:2.1.1`) con Testcontainers, incluida una
+aplicación Spring Boot que importa su secreto sin una línea de código de Vault. Si la máquina no
+tiene Docker, esas pruebas se saltan.
 
 ## La fuente del entorno
 

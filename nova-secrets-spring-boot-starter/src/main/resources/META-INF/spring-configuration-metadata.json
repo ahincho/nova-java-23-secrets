@@ -1,0 +1,68 @@
+{
+  "groups": [
+    {
+      "name": "nova.secrets",
+      "description": "La capacidad de secretos de Nova (ADR-042)."
+    },
+    {
+      "name": "nova.secrets.vault",
+      "description": "La fuente de Vault, que trae nova-secrets-vault."
+    }
+  ],
+  "properties": [
+    {
+      "name": "nova.secrets.override",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "Si un secreto pisa a una variable de entorno o propiedad suelta con el mismo nombre. Por defecto sí, como en NestJS: si una variable vieja quedó en la task definition, manda el almacén."
+    },
+    {
+      "name": "nova.secrets.env.variables",
+      "type": "java.lang.String",
+      "description": "Variables de entorno que traen un secreto como objeto JSON, separadas por coma. Se suman a las que descubre el prefijo y a las que lista NOVA_SECRETS."
+    },
+    {
+      "name": "nova.secrets.env.prefix",
+      "type": "java.lang.String",
+      "description": "Prefijo por el que se descubren las variables que traen un secreto. No tiene valor por defecto: es una convención de la organización y va en su starter."
+    },
+    {
+      "name": "nova.secrets.vault.address",
+      "type": "java.lang.String",
+      "description": "La dirección de Vault, http o https. Por defecto toma VAULT_ADDR."
+    },
+    {
+      "name": "nova.secrets.vault.token",
+      "type": "java.lang.String",
+      "description": "El token con que se lee Vault. Por defecto toma VAULT_TOKEN. No se usa si hay un AppRole."
+    },
+    {
+      "name": "nova.secrets.vault.app-role.role-id",
+      "type": "java.lang.String",
+      "description": "El role_id de AppRole. Si está, el servicio inicia sesión con AppRole en lugar de usar un token."
+    },
+    {
+      "name": "nova.secrets.vault.app-role.secret-id",
+      "type": "java.lang.String",
+      "description": "El secret_id de AppRole. Es obligatorio si hay un role-id."
+    },
+    {
+      "name": "nova.secrets.vault.app-role.mount",
+      "type": "java.lang.String",
+      "defaultValue": "approle",
+      "description": "Dónde está montado el método de autenticación AppRole."
+    },
+    {
+      "name": "nova.secrets.vault.mount",
+      "type": "java.lang.String",
+      "defaultValue": "secret",
+      "description": "El motor KV versión 2 donde viven los secretos."
+    },
+    {
+      "name": "nova.secrets.vault.timeout",
+      "type": "java.lang.String",
+      "defaultValue": "5s",
+      "description": "Cuánto se espera a Vault en cada llamada, como 500ms, 5s o PT5S. Si no contesta, el arranque se corta."
+    }
+  ]
+}
