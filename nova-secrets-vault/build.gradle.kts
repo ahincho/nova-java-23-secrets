@@ -1,3 +1,7 @@
+plugins {
+    id("pe.edu.nova.java.library")
+}
+
 description = "Adaptador de la capacidad de secretos para HashiCorp Vault, motor KV versión 2."
 
 dependencies {
