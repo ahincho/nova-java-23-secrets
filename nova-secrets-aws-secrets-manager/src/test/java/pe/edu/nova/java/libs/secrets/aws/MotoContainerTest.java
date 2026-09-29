@@ -27,7 +27,8 @@ import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
  */
 class MotoContainerTest {
 
-    private static final String SECRET_DB = "{\"DB_USERNAME\": \"course\", \"DB_PASSWORD\": \"s3cr3t\", \"port\": 5432}";
+    private static final String SECRET_DB =
+            "{\"DB_USERNAME\": \"course\", \"DB_PASSWORD\": \"s3cr3t\", \"port\": 5432}";
 
     private static GenericContainer<?> moto;
 
@@ -62,11 +63,15 @@ class MotoContainerTest {
 
     @Test
     void aSecretIsReadAndOpenedLikeTheOneEcsInjects() {
-        SecretSource source = SecretSources.provider("aws-secrets-manager").create(SecretSettings.of(Map.of(
-                "nova.secrets.aws-secrets-manager.region", "us-east-1",
-                "nova.secrets.aws-secrets-manager.endpoint", endpoint().toString())));
+        SecretSource source = SecretSources.provider("aws-secrets-manager")
+                .create(SecretSettings.of(Map.of(
+                        "nova.secrets.aws-secrets-manager.region",
+                        "us-east-1",
+                        "nova.secrets.aws-secrets-manager.endpoint",
+                        endpoint().toString())));
 
-        assertEquals(Map.of("DB_USERNAME", "course", "DB_PASSWORD", "s3cr3t", "port", "5432"),
+        assertEquals(
+                Map.of("DB_USERNAME", "course", "DB_PASSWORD", "s3cr3t", "port", "5432"),
                 source.find("prod/ms-course/db").orElseThrow().entries());
         assertTrue(source.find("prod/missing").isEmpty());
     }

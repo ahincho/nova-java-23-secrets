@@ -53,9 +53,11 @@ class SecretSettingsTest {
     void getDurationRejectsWhatIsNotADuration() {
         SecretSettings settings = SecretSettings.of(Map.of("nova.secrets.vault.timeout", "soon"));
 
-        SecretSourceException error = assertThrows(SecretSourceException.class, () -> settings.getDuration("nova.secrets.vault.timeout"));
+        SecretSourceException error =
+                assertThrows(SecretSourceException.class, () -> settings.getDuration("nova.secrets.vault.timeout"));
 
-        assertEquals("Secret setting nova.secrets.vault.timeout is not a duration, such as 5s or PT5S", error.getMessage());
+        assertEquals(
+                "Secret setting nova.secrets.vault.timeout is not a duration, such as 5s or PT5S", error.getMessage());
     }
 
     @Test

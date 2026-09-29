@@ -205,11 +205,20 @@ JSON, `Secret.fromJson()` ya aplica las reglas: solo escalares, y ningún error 
 
 ## Desarrollo
 
-Requiere JDK 25.
+Requiere JDK 25. El build usa el toolchain de Java de Nova: la raíz aplica
+`pe.edu.nova.java.quality` y cada módulo `pe.edu.nova.java.library`, que se resuelven desde GitHub
+Packages, así que Gradle necesita `GITHUB_ACTOR` y un `GITHUB_TOKEN` con `read:packages`.
 
 ```bash
 ./gradlew build
+./gradlew novaFormat
 ```
+
+`build` corre lo mismo que el CI: el formato, Checkstyle, las pruebas y una cobertura mínima del 80 %
+de líneas en cada módulo. `novaFormat` corrige el formato. El primer build instala un hook que valida
+cada mensaje de commit con Conventional Commits, y el CI valida los commits de cada PR.
+
+Las pruebas levantan un Vault y un Moto reales con Testcontainers, así que piden Docker.
 
 ## Licencia
 

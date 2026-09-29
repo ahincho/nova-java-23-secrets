@@ -15,8 +15,7 @@ import java.util.stream.Collectors;
  */
 public final class SecretSources {
 
-    private SecretSources() {
-    }
+    private SecretSources() {}
 
     /**
      * Las fuentes disponibles, ordenadas por nombre.
@@ -26,13 +25,12 @@ public final class SecretSources {
      * @throws IllegalStateException si dos fuentes declaran el mismo nombre
      */
     public static List<SecretSourceProvider> providers(ClassLoader classLoader) {
-        List<SecretSourceProvider> providers = ServiceLoader.load(SecretSourceProvider.class, classLoader)
-                .stream()
+        List<SecretSourceProvider> providers = ServiceLoader.load(SecretSourceProvider.class, classLoader).stream()
                 .map(ServiceLoader.Provider::get)
                 .sorted(Comparator.comparing(SecretSourceProvider::name))
                 .toList();
-        Map<String, Long> counts = providers.stream()
-                .collect(Collectors.groupingBy(SecretSourceProvider::name, Collectors.counting()));
+        Map<String, Long> counts =
+                providers.stream().collect(Collectors.groupingBy(SecretSourceProvider::name, Collectors.counting()));
         List<String> repeated = counts.entrySet().stream()
                 .filter(entry -> entry.getValue() > 1)
                 .map(Map.Entry::getKey)

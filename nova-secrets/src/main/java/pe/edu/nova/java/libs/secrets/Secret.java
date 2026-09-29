@@ -129,9 +129,7 @@ public final class Secret {
 
     @Override
     public boolean equals(Object other) {
-        return other instanceof Secret secret
-                && reference.equals(secret.reference)
-                && entries.equals(secret.entries);
+        return other instanceof Secret secret && reference.equals(secret.reference) && entries.equals(secret.entries);
     }
 
     @Override

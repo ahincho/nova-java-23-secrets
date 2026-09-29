@@ -20,8 +20,8 @@ class SecretTest {
 
     @Test
     void fromJsonTurnsEachTopLevelKeyIntoAnEntry() {
-        Secret secret = Secret.fromJson("SECRET_DB",
-                "{\"username\": \"course\", \"password\": \"s3cr3t\", \"host\": \"db.internal\"}");
+        Secret secret = Secret.fromJson(
+                "SECRET_DB", "{\"username\": \"course\", \"password\": \"s3cr3t\", \"host\": \"db.internal\"}");
 
         assertEquals(Map.of("username", "course", "password", "s3cr3t", "host", "db.internal"), secret.entries());
         assertEquals("SECRET_DB", secret.reference());
@@ -46,8 +46,8 @@ class SecretTest {
 
     @Test
     void fromJsonIgnoresObjectsListsAndNulls() {
-        Secret secret = Secret.fromJson("s",
-                "{\"kept\": \"yes\", \"nested\": {\"password\": \"x\"}, \"list\": [1, 2], \"empty\": null}");
+        Secret secret = Secret.fromJson(
+                "s", "{\"kept\": \"yes\", \"nested\": {\"password\": \"x\"}, \"list\": [1, 2], \"empty\": null}");
 
         assertEquals(Map.of("kept", "yes"), secret.entries());
     }
@@ -66,8 +66,8 @@ class SecretTest {
 
     @Test
     void fromJsonRejectsTextThatIsNotJson() {
-        SecretSourceException error = assertThrows(SecretSourceException.class,
-                () -> Secret.fromJson("SECRET_DB", "username=course"));
+        SecretSourceException error =
+                assertThrows(SecretSourceException.class, () -> Secret.fromJson("SECRET_DB", "username=course"));
 
         assertEquals("Secret SECRET_DB could not be parsed as JSON", error.getMessage());
         assertEquals("SECRET_DB", error.reference());

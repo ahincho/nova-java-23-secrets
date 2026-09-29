@@ -29,14 +29,18 @@ class AwsSecretsManagerSecretSourceTest {
 
     @Test
     void theProviderIsFoundByName() {
-        assertEquals("aws-secrets-manager", SecretSources.provider("aws-secrets-manager").name());
+        assertEquals(
+                "aws-secrets-manager",
+                SecretSources.provider("aws-secrets-manager").name());
     }
 
     @Test
     void aJsonSecretIsOpenedIntoProperties() {
-        AwsSecretsManagerSecretSource source = source(request -> GetSecretValueResponse.builder().secretString(SECRET_DB).build());
+        AwsSecretsManagerSecretSource source = source(request ->
+                GetSecretValueResponse.builder().secretString(SECRET_DB).build());
 
-        assertEquals(Map.of("username", "course", "password", "s3cr3t", "port", "5432"),
+        assertEquals(
+                Map.of("username", "course", "password", "s3cr3t", "port", "5432"),
                 source.find("prod/ms-course/db").orElseThrow().entries());
     }
 
@@ -56,7 +60,9 @@ class AwsSecretsManagerSecretSourceTest {
     @Test
     void aSecretThatDoesNotExistIsEmpty() {
         AwsSecretsManagerSecretSource source = source(request -> {
-            throw ResourceNotFoundException.builder().message("Secrets Manager can't find the specified secret.").build();
+            throw ResourceNotFoundException.builder()
+                    .message("Secrets Manager can't find the specified secret.")
+                    .build();
         });
 
         assertTrue(source.find("prod/missing").isEmpty());
@@ -70,7 +76,8 @@ class AwsSecretsManagerSecretSourceTest {
 
         SecretSourceException error = assertThrows(SecretSourceException.class, () -> source.find("prod/ms-course/db"));
 
-        assertEquals("Secret prod/ms-course/db was refused by AWS Secrets Manager (AccessDeniedException): the role cannot read it",
+        assertEquals(
+                "Secret prod/ms-course/db was refused by AWS Secrets Manager (AccessDeniedException): the role cannot read it",
                 error.getMessage());
     }
 
@@ -82,22 +89,28 @@ class AwsSecretsManagerSecretSourceTest {
 
         SecretSourceException error = assertThrows(SecretSourceException.class, () -> source.find("prod/ms-course/db"));
 
-        assertEquals("Secret prod/ms-course/db could not be read from AWS Secrets Manager (DecryptionFailure)", error.getMessage());
+        assertEquals(
+                "Secret prod/ms-course/db could not be read from AWS Secrets Manager (DecryptionFailure)",
+                error.getMessage());
     }
 
     @Test
     void aBinarySecretCannotBeOpened() {
         AwsSecretsManagerSecretSource source = source(request -> GetSecretValueResponse.builder()
-                .secretBinary(SdkBytes.fromUtf8String(SECRET_DB)).build());
+                .secretBinary(SdkBytes.fromUtf8String(SECRET_DB))
+                .build());
 
         SecretSourceException error = assertThrows(SecretSourceException.class, () -> source.find("prod/ms-course/db"));
 
-        assertEquals("Secret prod/ms-course/db is stored as binary, which cannot be opened as properties", error.getMessage());
+        assertEquals(
+                "Secret prod/ms-course/db is stored as binary, which cannot be opened as properties",
+                error.getMessage());
     }
 
     @Test
     void aSecretThatIsNotJsonIsRejectedWithoutQuotingIt() {
-        AwsSecretsManagerSecretSource source = source(request -> GetSecretValueResponse.builder().secretString("s3cr3t").build());
+        AwsSecretsManagerSecretSource source = source(request ->
+                GetSecretValueResponse.builder().secretString("s3cr3t").build());
 
         SecretSourceException error = assertThrows(SecretSourceException.class, () -> source.find("prod/api-key"));
 
@@ -108,40 +121,53 @@ class AwsSecretsManagerSecretSourceTest {
     @Test
     void aTimeoutSaysHowLongItWaited() {
         AwsSecretsManagerSecretSource source = source(request -> {
-            throw ApiCallTimeoutException.builder().message("Client execution did not complete before the specified timeout").build();
+            throw ApiCallTimeoutException.builder()
+                    .message("Client execution did not complete before the specified timeout")
+                    .build();
         });
 
         SecretSourceException error = assertThrows(SecretSourceException.class, () -> source.find("prod/ms-course/db"));
 
-        assertEquals("Secret prod/ms-course/db could not be read: AWS Secrets Manager did not answer within PT2S", error.getMessage());
+        assertEquals(
+                "Secret prod/ms-course/db could not be read: AWS Secrets Manager did not answer within PT2S",
+                error.getMessage());
     }
 
     @Test
     void missingCredentialsAreNamedAsSuch() {
         AwsSecretsManagerSecretSource source = source(request -> {
-            throw SdkClientException.builder().message("Unable to load credentials from any of the providers in the chain").build();
+            throw SdkClientException.builder()
+                    .message("Unable to load credentials from any of the providers in the chain")
+                    .build();
         });
 
         SecretSourceException error = assertThrows(SecretSourceException.class, () -> source.find("prod/ms-course/db"));
 
-        assertEquals("Secret prod/ms-course/db could not be read: no AWS credentials were found in the environment, "
-                + "a profile or the task role", error.getMessage());
+        assertEquals(
+                "Secret prod/ms-course/db could not be read: no AWS credentials were found in the environment, "
+                        + "a profile or the task role",
+                error.getMessage());
     }
 
     @Test
     void aNetworkFailureKeepsItsCause() {
         IOException network = new IOException("Connection refused");
         AwsSecretsManagerSecretSource source = source(request -> {
-            throw SdkClientException.builder().message("Unable to execute HTTP request").cause(network).build();
+            throw SdkClientException.builder()
+                    .message("Unable to execute HTTP request")
+                    .cause(network)
+                    .build();
         });
 
         SecretSourceException error = assertThrows(SecretSourceException.class, () -> source.find("prod/ms-course/db"));
 
-        assertEquals("Secret prod/ms-course/db could not be read: AWS Secrets Manager is not reachable", error.getMessage());
+        assertEquals(
+                "Secret prod/ms-course/db could not be read: AWS Secrets Manager is not reachable", error.getMessage());
         assertEquals(network, error.getCause());
     }
 
-    private static AwsSecretsManagerSecretSource source(Function<GetSecretValueRequest, GetSecretValueResponse> answer) {
+    private static AwsSecretsManagerSecretSource source(
+            Function<GetSecretValueRequest, GetSecretValueResponse> answer) {
         SecretsManagerClient client = new SecretsManagerClient() {
             @Override
             public GetSecretValueResponse getSecretValue(GetSecretValueRequest request) {
@@ -154,8 +180,7 @@ class AwsSecretsManagerSecretSourceTest {
             }
 
             @Override
-            public void close() {
-            }
+            public void close() {}
         };
         return new AwsSecretsManagerSecretSource(client, Duration.ofSeconds(2));
     }
@@ -163,7 +188,10 @@ class AwsSecretsManagerSecretSourceTest {
     private static SecretsManagerException awsError(String code, int status) {
         return (SecretsManagerException) SecretsManagerException.builder()
                 .statusCode(status)
-                .awsErrorDetails(AwsErrorDetails.builder().errorCode(code).errorMessage("denied").build())
+                .awsErrorDetails(AwsErrorDetails.builder()
+                        .errorCode(code)
+                        .errorMessage("denied")
+                        .build())
                 .build();
     }
 }

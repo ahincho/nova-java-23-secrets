@@ -12,8 +12,8 @@ import org.springframework.core.env.MapPropertySource;
 
 class NovaSecretsAutoConfigurationTest {
 
-    private final ApplicationContextRunner runner = new ApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(NovaSecretsAutoConfiguration.class));
+    private final ApplicationContextRunner runner =
+            new ApplicationContextRunner().withConfiguration(AutoConfigurations.of(NovaSecretsAutoConfiguration.class));
 
     @Test
     void theSanitizingFunctionIsRegistered() {
@@ -30,7 +30,8 @@ class NovaSecretsAutoConfigurationTest {
 
     @Test
     void aValueFromAnyOtherSourceIsLeftAlone() {
-        SanitizableData data = new SanitizableData(new MapPropertySource("application", Map.of()), "server.port", "8080");
+        SanitizableData data =
+                new SanitizableData(new MapPropertySource("application", Map.of()), "server.port", "8080");
 
         assertThat(NovaSecretsAutoConfiguration.sanitize(data).getValue()).isEqualTo("8080");
     }

@@ -20,9 +20,11 @@ record AwsSecretsManagerSettings(Optional<String> region, Optional<URI> endpoint
     static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(5);
 
     static AwsSecretsManagerSettings from(SecretSettings settings) {
-        Optional<String> region = settings.get(PREFIX + "region").filter(value -> !value.isBlank())
+        Optional<String> region = settings.get(PREFIX + "region")
+                .filter(value -> !value.isBlank())
                 .or(() -> settings.get("aws.region").filter(value -> !value.isBlank()));
-        Optional<URI> endpoint = settings.get(PREFIX + "endpoint").filter(value -> !value.isBlank())
+        Optional<URI> endpoint = settings.get(PREFIX + "endpoint")
+                .filter(value -> !value.isBlank())
                 .map(AwsSecretsManagerSettings::endpoint);
         Duration timeout = settings.getDuration(PREFIX + "timeout").orElse(DEFAULT_TIMEOUT);
         return new AwsSecretsManagerSettings(region, endpoint, timeout);
@@ -35,7 +37,8 @@ record AwsSecretsManagerSettings(Optional<String> region, Optional<URI> endpoint
         } catch (IllegalArgumentException e) {
             throw invalid("has an endpoint that is not a URI");
         }
-        if (uri.getScheme() == null || !(uri.getScheme().equals("http") || uri.getScheme().equals("https"))) {
+        if (uri.getScheme() == null
+                || !(uri.getScheme().equals("http") || uri.getScheme().equals("https"))) {
             throw invalid("needs an http or https endpoint");
         }
         return uri;

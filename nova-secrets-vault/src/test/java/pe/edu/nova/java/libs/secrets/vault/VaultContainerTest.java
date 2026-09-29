@@ -43,20 +43,25 @@ class VaultContainerTest {
     void aSecretIsReadFromARealVault() {
         SecretSource source = source(ROOT_TOKEN);
 
-        assertEquals(Map.of("DB_USERNAME", "course", "DB_PASSWORD", "s3cr3t"),
+        assertEquals(
+                Map.of("DB_USERNAME", "course", "DB_PASSWORD", "s3cr3t"),
                 source.find("ms-course").orElseThrow().entries());
         assertTrue(source.find("missing").isEmpty());
     }
 
     @Test
     void aWrongTokenIsRefused() {
-        SecretSourceException error = assertThrows(SecretSourceException.class, () -> source("wrong").find("ms-course"));
+        SecretSourceException error =
+                assertThrows(SecretSourceException.class, () -> source("wrong").find("ms-course"));
 
-        assertEquals("Secret ms-course was refused by Vault (403): the token or the AppRole cannot read it", error.getMessage());
+        assertEquals(
+                "Secret ms-course was refused by Vault (403): the token or the AppRole cannot read it",
+                error.getMessage());
     }
 
     private static SecretSource source(String token) {
-        return SecretSources.provider("vault").create(SecretSettings.of(Map.of(
-                "nova.secrets.vault.address", vault.getHttpHostAddress(), "nova.secrets.vault.token", token)));
+        return SecretSources.provider("vault")
+                .create(SecretSettings.of(Map.of(
+                        "nova.secrets.vault.address", vault.getHttpHostAddress(), "nova.secrets.vault.token", token)));
     }
 }

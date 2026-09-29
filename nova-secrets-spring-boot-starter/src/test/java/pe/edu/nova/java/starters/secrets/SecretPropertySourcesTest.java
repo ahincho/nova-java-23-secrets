@@ -17,8 +17,9 @@ class SecretPropertySourcesTest {
 
         SecretPropertySources.position(sources, true);
 
-        assertThat(names(sources)).containsExactly(
-                "commandLineArgs", "nova-secrets:a", "nova-secrets:b", "systemEnvironment", "application");
+        assertThat(names(sources))
+                .containsExactly(
+                        "commandLineArgs", "nova-secrets:a", "nova-secrets:b", "systemEnvironment", "application");
     }
 
     @Test
@@ -27,8 +28,9 @@ class SecretPropertySourcesTest {
 
         SecretPropertySources.position(sources, false);
 
-        assertThat(names(sources)).containsExactly(
-                "commandLineArgs", "systemEnvironment", "nova-secrets:a", "nova-secrets:b", "application");
+        assertThat(names(sources))
+                .containsExactly(
+                        "commandLineArgs", "systemEnvironment", "nova-secrets:a", "nova-secrets:b", "application");
     }
 
     @Test
@@ -37,7 +39,8 @@ class SecretPropertySourcesTest {
 
         assertThat(source.getProperty("db.password")).isEqualTo("s3cr3t");
         assertThat(SecretPropertySources.isSecret(source)).isTrue();
-        assertThat(SecretPropertySources.isSecret(new MapPropertySource("application", Map.of()))).isFalse();
+        assertThat(SecretPropertySources.isSecret(new MapPropertySource("application", Map.of())))
+                .isFalse();
     }
 
     private static MutablePropertySources sources() {

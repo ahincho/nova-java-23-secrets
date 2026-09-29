@@ -1,3 +1,7 @@
+plugins {
+    id("pe.edu.nova.java.library")
+}
+
 description = "Adaptador de la capacidad de secretos para AWS Secrets Manager."
 
 val awsSdkVersion = "2.55.7"

@@ -29,7 +29,8 @@ final class SecretSourceRegistry {
      * @throws IllegalArgumentException si ninguna dependencia la publica
      */
     SecretSource source(String name) {
-        return sources.computeIfAbsent(name, key -> SecretSources.provider(key, classLoader).create(settings));
+        return sources.computeIfAbsent(
+                name, key -> SecretSources.provider(key, classLoader).create(settings));
     }
 
     /** Falla temprano si ninguna dependencia publica una fuente con ese nombre. */

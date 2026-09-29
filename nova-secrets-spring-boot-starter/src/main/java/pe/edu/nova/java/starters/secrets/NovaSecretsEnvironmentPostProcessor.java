@@ -61,7 +61,8 @@ public class NovaSecretsEnvironmentPostProcessor implements EnvironmentPostProce
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-        List<Secret> secrets = EnvironmentSecrets.unfold(SpringSecretSettings.of(environment), systemEnvironment(environment));
+        List<Secret> secrets =
+                EnvironmentSecrets.unfold(SpringSecretSettings.of(environment), systemEnvironment(environment));
         if (!secrets.isEmpty()) {
             Map<String, String> entries = new LinkedHashMap<>();
             secrets.forEach(secret -> entries.putAll(secret.entries()));
@@ -78,9 +79,10 @@ public class NovaSecretsEnvironmentPostProcessor implements EnvironmentPostProce
      * {@link System#getenv()}, para que una prueba pueda reemplazarlas.
      */
     private static Map<String, String> systemEnvironment(ConfigurableEnvironment environment) {
-        PropertySource<?> source = environment.getPropertySources()
-                .get(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME);
-        Map<String, Object> raw = source instanceof MapPropertySource map ? map.getSource() : environment.getSystemEnvironment();
+        PropertySource<?> source =
+                environment.getPropertySources().get(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME);
+        Map<String, Object> raw =
+                source instanceof MapPropertySource map ? map.getSource() : environment.getSystemEnvironment();
         Map<String, String> variables = new HashMap<>();
         raw.forEach((name, value) -> {
             if (value != null) {

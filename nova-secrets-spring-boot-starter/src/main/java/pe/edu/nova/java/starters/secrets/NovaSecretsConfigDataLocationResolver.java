@@ -36,7 +36,8 @@ public class NovaSecretsConfigDataLocationResolver implements ConfigDataLocation
     }
 
     @Override
-    public List<SecretConfigDataResource> resolve(ConfigDataLocationResolverContext context, ConfigDataLocation location) {
+    public List<SecretConfigDataResource> resolve(
+            ConfigDataLocationResolverContext context, ConfigDataLocation location) {
         String value = location.getNonPrefixedValue(SecretPropertySources.PREFIX);
         int separator = value.indexOf(':');
         if (separator <= 0 || separator == value.length() - 1) {
@@ -51,8 +52,10 @@ public class NovaSecretsConfigDataLocationResolver implements ConfigDataLocation
 
     private SecretSourceRegistry registry(ConfigDataLocationResolverContext context) {
         ConfigurableBootstrapContext bootstrap = context.getBootstrapContext();
-        bootstrap.registerIfAbsent(SecretSourceRegistry.class,
-                InstanceSupplier.of(new SecretSourceRegistry(SpringSecretSettings.of(context.getBinder()), classLoader)));
+        bootstrap.registerIfAbsent(
+                SecretSourceRegistry.class,
+                InstanceSupplier.of(
+                        new SecretSourceRegistry(SpringSecretSettings.of(context.getBinder()), classLoader)));
         return bootstrap.get(SecretSourceRegistry.class);
     }
 }

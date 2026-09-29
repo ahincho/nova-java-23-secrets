@@ -14,7 +14,9 @@ class SecretSourcesTest {
 
     @Test
     void theEnvironmentSourceIsAlwaysAvailable() {
-        List<String> names = SecretSources.providers().stream().map(SecretSourceProvider::name).toList();
+        List<String> names = SecretSources.providers().stream()
+                .map(SecretSourceProvider::name)
+                .toList();
 
         assertTrue(names.contains("env"), names.toString());
     }
@@ -29,10 +31,12 @@ class SecretSourcesTest {
 
     @Test
     void anUnknownNameListsTheAvailableSources() {
-        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
-                () -> SecretSources.provider("vault"));
+        IllegalArgumentException error =
+                assertThrows(IllegalArgumentException.class, () -> SecretSources.provider("vault"));
 
-        assertEquals("No secret source named 'vault'. Available: [env]. "
-                + "Each store is a dependency, such as nova-secrets-vault.", error.getMessage());
+        assertEquals(
+                "No secret source named 'vault'. Available: [env]. "
+                        + "Each store is a dependency, such as nova-secrets-vault.",
+                error.getMessage());
     }
 }

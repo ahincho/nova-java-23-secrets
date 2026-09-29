@@ -1,4 +1,5 @@
 plugins {
+    id("pe.edu.nova.java.library")
     id("info.solidsoft.pitest")
 }
 
@@ -9,6 +10,7 @@ dependencies {
     // Jackson 2 de Quarkus, porque Jackson 3 cambió de paquete (ADR-042, pregunta abierta 6).
     implementation("com.fasterxml.jackson.core:jackson-core:2.22.3")
 
+    testImplementation("net.jqwik:jqwik:1.9.3")
     testImplementation("com.tngtech.archunit:archunit:1.5.1")
 }
 

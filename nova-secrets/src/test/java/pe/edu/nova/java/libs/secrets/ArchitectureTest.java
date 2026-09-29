@@ -15,7 +15,9 @@ class ArchitectureTest {
 
     @Test
     void theContractDoesNotDependOnAnyFramework() {
-        noClasses().should().dependOnClassesThat()
+        noClasses()
+                .should()
+                .dependOnClassesThat()
                 .resideInAnyPackage("org.springframework..", "io.quarkus..", "io.micronaut..", "jakarta.inject..")
                 .because("ADR-015: a level 1 library must work in every framework")
                 .check(classes);
@@ -23,8 +25,12 @@ class ArchitectureTest {
 
     @Test
     void jacksonStaysAnImplementationDetailOfTheSecret() {
-        noClasses().that().doNotHaveFullyQualifiedName(Secret.class.getName())
-                .should().dependOnClassesThat().resideInAnyPackage("com.fasterxml.jackson..")
+        noClasses()
+                .that()
+                .doNotHaveFullyQualifiedName(Secret.class.getName())
+                .should()
+                .dependOnClassesThat()
+                .resideInAnyPackage("com.fasterxml.jackson..")
                 .because("ADR-042: only Secret.fromJson() opens a JSON secret, so the parser can change")
                 .check(classes);
     }

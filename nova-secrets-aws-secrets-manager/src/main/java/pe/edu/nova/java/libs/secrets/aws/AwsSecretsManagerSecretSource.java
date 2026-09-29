@@ -41,14 +41,15 @@ final class AwsSecretsManagerSecretSource implements SecretSource {
         }
         GetSecretValueResponse response;
         try {
-            response = client.getSecretValue(GetSecretValueRequest.builder().secretId(reference).build());
+            response = client.getSecretValue(
+                    GetSecretValueRequest.builder().secretId(reference).build());
         } catch (ResourceNotFoundException e) {
             return Optional.empty();
         } catch (SecretsManagerException e) {
             throw refused(reference, e);
         } catch (ApiCallTimeoutException | ApiCallAttemptTimeoutException e) {
-            throw new SecretSourceException(reference,
-                    "could not be read: AWS Secrets Manager did not answer within " + timeout, e);
+            throw new SecretSourceException(
+                    reference, "could not be read: AWS Secrets Manager did not answer within " + timeout, e);
         } catch (SdkClientException e) {
             throw unreachable(reference, e);
         }
@@ -63,8 +64,8 @@ final class AwsSecretsManagerSecretSource implements SecretSource {
                 ? e.awsErrorDetails().errorCode()
                 : "status " + e.statusCode();
         if (e.statusCode() == 403 || "AccessDeniedException".equals(code)) {
-            return new SecretSourceException(reference,
-                    "was refused by AWS Secrets Manager (" + code + "): the role cannot read it");
+            return new SecretSourceException(
+                    reference, "was refused by AWS Secrets Manager (" + code + "): the role cannot read it");
         }
         return new SecretSourceException(reference, "could not be read from AWS Secrets Manager (" + code + ")");
     }
@@ -76,11 +77,13 @@ final class AwsSecretsManagerSecretSource implements SecretSource {
     private static SecretSourceException unreachable(String reference, SdkClientException e) {
         String message = String.valueOf(e.getMessage());
         if (message.contains("Unable to load credentials")) {
-            return new SecretSourceException(reference,
+            return new SecretSourceException(
+                    reference,
                     "could not be read: no AWS credentials were found in the environment, a profile or the task role");
         }
         if (e.getCause() instanceof IOException network) {
-            return new SecretSourceException(reference, "could not be read: AWS Secrets Manager is not reachable", network);
+            return new SecretSourceException(
+                    reference, "could not be read: AWS Secrets Manager is not reachable", network);
         }
         return new SecretSourceException(reference, "could not be read: the AWS client failed before an answer");
     }

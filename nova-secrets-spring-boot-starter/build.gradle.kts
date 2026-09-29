@@ -1,3 +1,7 @@
+plugins {
+    id("pe.edu.nova.java.library")
+}
+
 description = "Conector de la capacidad de secretos con Spring Boot: carga los secretos antes de que exista la aplicación."
 
 val springBootVersion = "4.0.8"
