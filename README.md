@@ -13,13 +13,13 @@ versión— en [ADR-041](https://github.com/ahincho/nova-shared-01-docs/blob/mai
 
 | Módulo | `groupId` | Qué es | Estado |
 |---|---|---|---|
-| `nova-secrets` | `pe.edu.nova.java.libs` | el contrato, sin Spring ni proveedores, y la implementación por defecto: el entorno del proceso | listo, sin publicar |
-| `nova-secrets-vault` | `pe.edu.nova.java.libs` | Vault, motor KV versión 2 | listo, sin publicar |
-| `nova-secrets-aws-secrets-manager` | `pe.edu.nova.java.libs` | AWS Secrets Manager | listo, sin publicar |
-| `nova-secrets-spring-boot-starter` | `pe.edu.nova.java.starters` | conecta cualquier fuente con Spring Boot y aplica las reglas | listo, sin publicar |
+| `nova-secrets` | `pe.edu.nova.java.libs` | el contrato, sin Spring ni proveedores, y la implementación por defecto: el entorno del proceso | publicado |
+| `nova-secrets-vault` | `pe.edu.nova.java.libs` | Vault, motor KV versión 2 | publicado |
+| `nova-secrets-aws-secrets-manager` | `pe.edu.nova.java.libs` | AWS Secrets Manager | publicado |
+| `nova-secrets-spring-boot-starter` | `pe.edu.nova.java.starters` | conecta cualquier fuente con Spring Boot y aplica las reglas | publicado |
 
 Todos se publican en `https://maven.pkg.github.com/ahincho/nova-java-23-secrets` con la misma
-versión.
+versión. La última está en los [releases](https://github.com/ahincho/nova-java-23-secrets/releases).
 
 ## Cómo se usa en Spring Boot
 
