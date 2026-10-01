@@ -43,6 +43,10 @@ spring:
 - **Un almacén se pide con `spring.config.import`**, como `nova-secrets:<fuente>:<referencia>`. Todo
   lo que va después de la fuente es la referencia, así que un ARN de AWS se escribe tal cual. Con
   `optional:` delante, un secreto que no existe no corta el arranque; sin él, sí.
+- **O con `nova.secrets.import`**, la misma forma que en Quarkus y en NestJS: `vault:ms-course`, sin
+  el `nova-secrets:` delante, y varias separadas por coma. Desde la task definition es la variable
+  `NOVA_SECRETS_IMPORT`, así que operaciones pide un almacén igual sin saber en qué framework está
+  el servicio. Un pedido gana sobre lo que se desdobla del entorno, y entre dos gana el último.
 - **Un secreto se comporta como una variable de entorno.** `DB_PASSWORD` se encuentra también como
   `db.password`, así que funciona igual con `${DB_PASSWORD}` y con `@ConfigurationProperties`.
 - **Un secreto pisa a una variable suelta con el mismo nombre.** Es lo que hace NestJS, y va contra
