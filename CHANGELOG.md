@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/ahincho/nova-java-23-secrets/compare/v1.0.1...v1.1.0) (2026-10-01)
+
+
+### Features
+
+* add the Quarkus extension for secrets ([d07e556](https://github.com/ahincho/nova-java-23-secrets/commit/d07e5563be8a946686698bed8485956478325be1))
+
+
+### Documentation
+
+* mark the four modules as published ([5760702](https://github.com/ahincho/nova-java-23-secrets/commit/57607024a699ccb8a31f61d2ea8e18f5ca1c0bb0))
+
 ## [1.0.1](https://github.com/ahincho/nova-java-23-secrets/compare/v1.0.0...v1.0.1) (2026-09-29)
 
 
