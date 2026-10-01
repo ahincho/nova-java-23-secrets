@@ -101,6 +101,52 @@ class NovaSecretsEnvironmentPostProcessorTest {
         assertThat(environment.getProperty("LEGACY_API_KEY")).isEqualTo("k");
     }
 
+    @Test
+    void novaSecretsImportReadsAStoreAsInQuarkusAndNestJs() {
+        StandardEnvironment environment =
+                environment(Map.of("DB_PASSWORD", "stale"), Map.of("nova.secrets.import", "fake:ms-course"));
+
+        processor.postProcessEnvironment(environment, new SpringApplication());
+
+        assertThat(environment.getProperty("DB_USERNAME")).isEqualTo("course");
+        assertThat(environment.getProperty("DB_PASSWORD")).isEqualTo("s3cr3t");
+    }
+
+    @Test
+    void operationsAsksForAStoreWithTheSameVariableInEveryStack() {
+        StandardEnvironment environment = environment(Map.of("NOVA_SECRETS_IMPORT", "fake:ms-course"), Map.of());
+
+        processor.postProcessEnvironment(environment, new SpringApplication());
+
+        assertThat(environment.getProperty("db.username")).isEqualTo("course");
+    }
+
+    @Test
+    void theLaterImportWinsAndEveryImportBeatsTheEnvironmentSecrets() {
+        StandardEnvironment environment = environment(
+                Map.of("CREDENTIALS_DB", CREDENTIALS_DB),
+                Map.of(
+                        "nova.secrets.env.prefix", "CREDENTIALS_",
+                        "nova.secrets.import", "fake:ms-course, fake:ms-course-v2"));
+
+        processor.postProcessEnvironment(environment, new SpringApplication());
+
+        assertThat(environment.getProperty("DB_PASSWORD")).isEqualTo("rotated");
+        assertThat(environment.getProperty("DB_USERNAME")).isEqualTo("course");
+    }
+
+    @Test
+    void aMissingImportStopsTheStartupUnlessItIsOptional() {
+        StandardEnvironment required = environment(Map.of(), Map.of("nova.secrets.import", "fake:missing"));
+        StandardEnvironment optional = environment(Map.of(), Map.of("nova.secrets.import", "optional:fake:missing"));
+
+        assertThatThrownBy(() -> processor.postProcessEnvironment(required, new SpringApplication()))
+                .isInstanceOf(SecretSourceException.class)
+                .hasMessage("Secret fake:missing does not exist; write optional:fake:missing if it may");
+        processor.postProcessEnvironment(optional, new SpringApplication());
+        assertThat(optional.getProperty("DB_PASSWORD")).isNull();
+    }
+
     private static StandardEnvironment environment(Map<String, String> variables, Map<String, String> application) {
         StandardEnvironment environment = new StandardEnvironment();
         environment

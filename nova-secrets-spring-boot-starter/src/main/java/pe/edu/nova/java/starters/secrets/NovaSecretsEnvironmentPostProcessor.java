@@ -1,5 +1,7 @@
 package pe.edu.nova.java.starters.secrets;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -15,6 +17,9 @@ import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.StandardEnvironment;
 import pe.edu.nova.java.libs.secrets.Secret;
+import pe.edu.nova.java.libs.secrets.SecretImport;
+import pe.edu.nova.java.libs.secrets.SecretImports;
+import pe.edu.nova.java.libs.secrets.SecretSettings;
 import pe.edu.nova.java.libs.secrets.env.EnvironmentSecrets;
 
 /**
@@ -22,9 +27,12 @@ import pe.edu.nova.java.libs.secrets.env.EnvironmentSecrets;
  *
  * <p>Corre justo después de que Spring lee los archivos de configuración, así que ve el prefijo y
  * la lista de variables aunque vengan del {@code application.yml}, y ya encuentra cargados los
- * secretos que se pidieron con {@code spring.config.import}. Hace dos cosas:
+ * secretos que se pidieron con {@code spring.config.import}. Hace tres cosas:
  *
  * <ol>
+ *   <li>Carga los secretos que se piden con {@code nova.secrets.import}, la misma forma que en Quarkus
+ *       y en NestJS, para que operaciones los pida con la variable {@code NOVA_SECRETS_IMPORT} sin saber
+ *       en qué framework está el servicio.</li>
  *   <li>Desdobla las variables de entorno que traen un secreto (ver {@link EnvironmentSecrets}) en
  *       una fuente de propiedades. Si dos secretos traen la misma clave, gana el último, igual que
  *       en NestJS. Si no hay nada que desdoblar, no agrega nada.</li>
@@ -61,8 +69,24 @@ public class NovaSecretsEnvironmentPostProcessor implements EnvironmentPostProce
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-        List<Secret> secrets =
-                EnvironmentSecrets.unfold(SpringSecretSettings.of(environment), systemEnvironment(environment));
+        SecretSettings settings = SpringSecretSettings.of(environment);
+
+        // Los pedidos de nova.secrets.import, que en los tres stacks se piden igual (ADR-049). Se agregan
+        // del último al primero y antes que los del entorno, para que el último pedido gane y todo pedido
+        // gane sobre lo que se desdobla del entorno, como en Quarkus.
+        Map<SecretImport, Secret> imported = SecretImports.load(settings, application.getClassLoader());
+        List<Map.Entry<SecretImport, Secret>> newestFirst = new ArrayList<>(imported.entrySet());
+        Collections.reverse(newestFirst);
+        newestFirst.forEach(entry -> environment
+                .getPropertySources()
+                .addLast(SecretPropertySources.of(
+                        SecretPropertySources.PREFIX + entry.getKey(),
+                        entry.getValue().entries())));
+        if (!imported.isEmpty()) {
+            log.info("Imported the secrets " + imported.keySet());
+        }
+
+        List<Secret> secrets = EnvironmentSecrets.unfold(settings, systemEnvironment(environment));
         if (!secrets.isEmpty()) {
             Map<String, String> entries = new LinkedHashMap<>();
             secrets.forEach(secret -> entries.putAll(secret.entries()));

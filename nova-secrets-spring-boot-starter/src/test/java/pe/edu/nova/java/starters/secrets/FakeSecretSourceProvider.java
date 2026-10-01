@@ -27,6 +27,7 @@ public class FakeSecretSourceProvider implements SecretSourceProvider {
             case "ms-course" ->
                 Optional.of(Secret.of(reference, Map.of("DB_USERNAME", "course", "DB_PASSWORD", "s3cr3t")));
             case "legacy" -> Optional.of(Secret.of(reference, Map.of("LEGACY_API_KEY", "k")));
+            case "ms-course-v2" -> Optional.of(Secret.of(reference, Map.of("DB_PASSWORD", "rotated")));
             case "settings" -> Optional.of(Secret.of(reference, Map.of("GREETING", greeting)));
             case "broken" -> throw new SecretSourceException(reference, "could not be parsed as JSON");
             default -> Optional.empty();
