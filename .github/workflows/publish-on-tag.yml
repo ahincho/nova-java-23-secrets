@@ -146,6 +146,6 @@ jobs:
         uses: ahincho/nova-shared-02-pipelines/.github/actions/nova-verify-publication@main
         with:
           group-id: pe.edu.nova.java.starters
-          artifact-ids: nova-secrets-spring-boot-starter
+          artifact-ids: nova-secrets-spring-boot-starter nova-secrets-quarkus-extension nova-secrets-quarkus-extension-deployment
           version: ${{ steps.detect.outputs.tag }}
           token: ${{ github.token }}
