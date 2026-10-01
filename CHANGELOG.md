@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/ahincho/nova-java-23-secrets/compare/v1.1.0...v1.2.0) (2026-10-01)
+
+
+### Features
+
+* read nova.secrets.import in the Spring Boot starter ([026211c](https://github.com/ahincho/nova-java-23-secrets/commit/026211c14f1d4d2d5ebbb8c2a3807fe942185b41))
+
 ## [1.1.0](https://github.com/ahincho/nova-java-23-secrets/compare/v1.0.1...v1.1.0) (2026-10-01)
 
 
