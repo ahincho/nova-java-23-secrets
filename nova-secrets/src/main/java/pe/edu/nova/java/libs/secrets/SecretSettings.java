@@ -73,7 +73,7 @@ public interface SecretSettings {
     /**
      * Separa una lista escrita con comas.
      *
-     * @param raw el texto, como {@code "SECRET_DB, SECRET_LEGACY"}
+     * @param raw el texto, como {@code "CREDENTIALS_DB, CREDENTIALS_LEGACY"}
      * @return los elementos, sin espacios alrededor ni elementos vacíos
      */
     static List<String> splitList(String raw) {

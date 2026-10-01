@@ -21,10 +21,10 @@ class SecretTest {
     @Test
     void fromJsonTurnsEachTopLevelKeyIntoAnEntry() {
         Secret secret = Secret.fromJson(
-                "SECRET_DB", "{\"username\": \"course\", \"password\": \"s3cr3t\", \"host\": \"db.internal\"}");
+                "CREDENTIALS_DB", "{\"username\": \"course\", \"password\": \"s3cr3t\", \"host\": \"db.internal\"}");
 
         assertEquals(Map.of("username", "course", "password", "s3cr3t", "host", "db.internal"), secret.entries());
-        assertEquals("SECRET_DB", secret.reference());
+        assertEquals("CREDENTIALS_DB", secret.reference());
     }
 
     @Test
@@ -67,10 +67,10 @@ class SecretTest {
     @Test
     void fromJsonRejectsTextThatIsNotJson() {
         SecretSourceException error =
-                assertThrows(SecretSourceException.class, () -> Secret.fromJson("SECRET_DB", "username=course"));
+                assertThrows(SecretSourceException.class, () -> Secret.fromJson("CREDENTIALS_DB", "username=course"));
 
-        assertEquals("Secret SECRET_DB could not be parsed as JSON", error.getMessage());
-        assertEquals("SECRET_DB", error.reference());
+        assertEquals("Secret CREDENTIALS_DB could not be parsed as JSON", error.getMessage());
+        assertEquals("CREDENTIALS_DB", error.reference());
         assertNull(error.getCause());
     }
 
@@ -106,9 +106,9 @@ class SecretTest {
 
     @Property
     void toStringNeverShowsAValue(@ForAll @AlphaChars @StringLength(min = 12, max = 40) String value) {
-        Secret secret = Secret.fromJson("SECRET_DB", "{\"password\": \"" + value + "\"}");
+        Secret secret = Secret.fromJson("CREDENTIALS_DB", "{\"password\": \"" + value + "\"}");
 
-        assertEquals("Secret[reference=SECRET_DB, keys=[password]]", secret.toString());
+        assertEquals("Secret[reference=CREDENTIALS_DB, keys=[password]]", secret.toString());
         assertFalse(secret.toString().contains(value));
     }
 
