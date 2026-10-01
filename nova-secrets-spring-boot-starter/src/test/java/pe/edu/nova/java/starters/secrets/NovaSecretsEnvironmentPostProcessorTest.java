@@ -15,15 +15,15 @@ import pe.edu.nova.java.libs.secrets.SecretSourceException;
 
 class NovaSecretsEnvironmentPostProcessorTest {
 
-    private static final String SECRET_DB = "{\"DB_USERNAME\": \"course\", \"DB_PASSWORD\": \"fresh\"}";
+    private static final String CREDENTIALS_DB = "{\"DB_USERNAME\": \"course\", \"DB_PASSWORD\": \"fresh\"}";
 
     private final NovaSecretsEnvironmentPostProcessor processor =
             new NovaSecretsEnvironmentPostProcessor(supplier -> supplier.get());
 
     @Test
     void theSecretsOfThePrefixBecomeProperties() {
-        StandardEnvironment environment =
-                environment(Map.of("SECRET_DB", SECRET_DB), Map.of("nova.secrets.env.prefix", "SECRET_"));
+        StandardEnvironment environment = environment(
+                Map.of("CREDENTIALS_DB", CREDENTIALS_DB), Map.of("nova.secrets.env.prefix", "CREDENTIALS_"));
 
         processor.postProcessEnvironment(environment, new SpringApplication());
 
@@ -36,7 +36,8 @@ class NovaSecretsEnvironmentPostProcessorTest {
     @Test
     void aSecretWinsOverALooseVariableWithTheSameName() {
         StandardEnvironment environment = environment(
-                Map.of("SECRET_DB", SECRET_DB, "DB_PASSWORD", "stale"), Map.of("nova.secrets.env.prefix", "SECRET_"));
+                Map.of("CREDENTIALS_DB", CREDENTIALS_DB, "DB_PASSWORD", "stale"),
+                Map.of("nova.secrets.env.prefix", "CREDENTIALS_"));
 
         processor.postProcessEnvironment(environment, new SpringApplication());
 
@@ -46,8 +47,8 @@ class NovaSecretsEnvironmentPostProcessorTest {
     @Test
     void withoutOverrideTheLooseVariableWins() {
         StandardEnvironment environment = environment(
-                Map.of("SECRET_DB", SECRET_DB, "DB_PASSWORD", "stale"),
-                Map.of("nova.secrets.env.prefix", "SECRET_", "nova.secrets.override", "false"));
+                Map.of("CREDENTIALS_DB", CREDENTIALS_DB, "DB_PASSWORD", "stale"),
+                Map.of("nova.secrets.env.prefix", "CREDENTIALS_", "nova.secrets.override", "false"));
 
         processor.postProcessEnvironment(environment, new SpringApplication());
 
@@ -67,7 +68,7 @@ class NovaSecretsEnvironmentPostProcessorTest {
 
     @Test
     void nothingIsAddedWhenThereIsNothingToUnfold() {
-        StandardEnvironment environment = environment(Map.of("SECRET_DB", SECRET_DB), Map.of());
+        StandardEnvironment environment = environment(Map.of("CREDENTIALS_DB", CREDENTIALS_DB), Map.of());
 
         processor.postProcessEnvironment(environment, new SpringApplication());
 
@@ -80,12 +81,12 @@ class NovaSecretsEnvironmentPostProcessorTest {
 
     @Test
     void aVariableThatIsNotJsonStopsTheStartupWithoutTheContent() {
-        StandardEnvironment environment =
-                environment(Map.of("SECRET_DB", "password=fresh"), Map.of("nova.secrets.env.prefix", "SECRET_"));
+        StandardEnvironment environment = environment(
+                Map.of("CREDENTIALS_DB", "password=fresh"), Map.of("nova.secrets.env.prefix", "CREDENTIALS_"));
 
         assertThatThrownBy(() -> processor.postProcessEnvironment(environment, new SpringApplication()))
                 .isInstanceOf(SecretSourceException.class)
-                .hasMessage("Secret SECRET_DB could not be parsed as JSON");
+                .hasMessage("Secret CREDENTIALS_DB could not be parsed as JSON");
     }
 
     @Test

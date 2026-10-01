@@ -15,9 +15,9 @@ class SecretSettingsTest {
 
     @Test
     void ofReturnsTheConfiguredValues() {
-        SecretSettings settings = SecretSettings.of(Map.of("nova.secrets.env.prefix", "SECRET_"));
+        SecretSettings settings = SecretSettings.of(Map.of("nova.secrets.env.prefix", "CREDENTIALS_"));
 
-        assertEquals(Optional.of("SECRET_"), settings.get("nova.secrets.env.prefix"));
+        assertEquals(Optional.of("CREDENTIALS_"), settings.get("nova.secrets.env.prefix"));
         assertTrue(settings.get("missing").isEmpty());
     }
 
@@ -32,9 +32,9 @@ class SecretSettingsTest {
 
     @Test
     void getListSplitsOnCommasAndDropsBlanks() {
-        SecretSettings settings = SecretSettings.of(Map.of("list", " SECRET_DB , ,SECRET_LEGACY,"));
+        SecretSettings settings = SecretSettings.of(Map.of("list", " CREDENTIALS_DB , ,CREDENTIALS_LEGACY,"));
 
-        assertEquals(List.of("SECRET_DB", "SECRET_LEGACY"), settings.getList("list"));
+        assertEquals(List.of("CREDENTIALS_DB", "CREDENTIALS_LEGACY"), settings.getList("list"));
     }
 
     @Test

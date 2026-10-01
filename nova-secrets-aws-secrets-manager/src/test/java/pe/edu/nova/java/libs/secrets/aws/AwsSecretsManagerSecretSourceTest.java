@@ -25,7 +25,7 @@ import software.amazon.awssdk.services.secretsmanager.model.SecretsManagerExcept
 /** Pruebas con un cliente falso de Secrets Manager, para cubrir cada respuesta sin un emulador. */
 class AwsSecretsManagerSecretSourceTest {
 
-    private static final String SECRET_DB = "{\"username\": \"course\", \"password\": \"s3cr3t\", \"port\": 5432}";
+    private static final String CREDENTIALS_DB = "{\"username\": \"course\", \"password\": \"s3cr3t\", \"port\": 5432}";
 
     @Test
     void theProviderIsFoundByName() {
@@ -37,7 +37,7 @@ class AwsSecretsManagerSecretSourceTest {
     @Test
     void aJsonSecretIsOpenedIntoProperties() {
         AwsSecretsManagerSecretSource source = source(request ->
-                GetSecretValueResponse.builder().secretString(SECRET_DB).build());
+                GetSecretValueResponse.builder().secretString(CREDENTIALS_DB).build());
 
         assertEquals(
                 Map.of("username", "course", "password", "s3cr3t", "port", "5432"),
@@ -97,7 +97,7 @@ class AwsSecretsManagerSecretSourceTest {
     @Test
     void aBinarySecretCannotBeOpened() {
         AwsSecretsManagerSecretSource source = source(request -> GetSecretValueResponse.builder()
-                .secretBinary(SdkBytes.fromUtf8String(SECRET_DB))
+                .secretBinary(SdkBytes.fromUtf8String(CREDENTIALS_DB))
                 .build());
 
         SecretSourceException error = assertThrows(SecretSourceException.class, () -> source.find("prod/ms-course/db"));

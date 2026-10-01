@@ -27,7 +27,7 @@ import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
  */
 class MotoContainerTest {
 
-    private static final String SECRET_DB =
+    private static final String CREDENTIALS_DB =
             "{\"DB_USERNAME\": \"course\", \"DB_PASSWORD\": \"s3cr3t\", \"port\": 5432}";
 
     private static GenericContainer<?> moto;
@@ -48,7 +48,7 @@ class MotoContainerTest {
                 .endpointOverride(endpoint())
                 .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create("test", "test")))
                 .build()) {
-            setup.createSecret(request -> request.name("prod/ms-course/db").secretString(SECRET_DB));
+            setup.createSecret(request -> request.name("prod/ms-course/db").secretString(CREDENTIALS_DB));
         }
     }
 
