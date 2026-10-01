@@ -17,6 +17,8 @@ versión— en [ADR-041](https://github.com/ahincho/nova-shared-01-docs/blob/mai
 | `nova-secrets-vault` | `pe.edu.nova.java.libs` | Vault, motor KV versión 2 | publicado |
 | `nova-secrets-aws-secrets-manager` | `pe.edu.nova.java.libs` | AWS Secrets Manager | publicado |
 | `nova-secrets-spring-boot-starter` | `pe.edu.nova.java.starters` | conecta cualquier fuente con Spring Boot y aplica las reglas | publicado |
+| `nova-secrets-quarkus-extension` | `pe.edu.nova.java.starters` | lo mismo para Quarkus, como fuentes de SmallRye Config ([ADR-049](https://github.com/ahincho/nova-shared-01-docs/blob/main/adrs/shared/ADR-049-secretos-en-quarkus-y-nestjs.md)) | nuevo |
+| `nova-secrets-quarkus-extension-deployment` | `pe.edu.nova.java.starters` | sus pasos de build; Quarkus lo resuelve solo, el servicio no lo declara | nuevo |
 
 Todos se publican en `https://maven.pkg.github.com/ahincho/nova-java-23-secrets` con la misma
 versión. La última está en los [releases](https://github.com/ahincho/nova-java-23-secrets/releases).
@@ -51,6 +53,35 @@ spring:
 
 Si un servicio importa varios secretos del mismo almacén, la fuente se crea una sola vez: con Vault,
 por ejemplo, inicia sesión una vez y no una por secreto.
+
+## Cómo se usa en Quarkus
+
+El servicio declara la extensión y, si lee de un almacén, su adaptador; los mismos adaptadores que
+en Spring Boot. Los almacenes se piden con `nova.secrets.import`, o con la variable
+`NOVA_SECRETS_IMPORT` desde la task definition:
+
+```properties
+nova.secrets.import=vault:ms-course                # o aws-secrets-manager:prod/ms-course/db
+quarkus.datasource.username=${DB_USERNAME}
+quarkus.datasource.password=${DB_PASSWORD}
+```
+
+- **La referencia es la misma en los tres stacks**: `<fuente>:<referencia>`, con `optional:` delante
+  si puede faltar, y varias separadas por coma. En Spring Boot va detrás de `nova-secrets:` en
+  `spring.config.import`.
+- **La fuente del entorno se aplica sola**, con las mismas propiedades que en Spring Boot:
+  `nova.secrets.env.variables`, `nova.secrets.env.prefix` y la variable `NOVA_SECRETS`.
+- **Un secreto pisa a una variable de entorno**: sus fuentes tienen ordinal 350, por encima de las
+  variables (300). Con `nova.secrets.override=false` bajan a 275, así que la variable gana y el
+  secreto sigue ganando sobre `application.properties` (250). Un secreto pedido gana sobre lo que se
+  desdobló del entorno, y entre dos pedidos gana el que se escribió después.
+- **Un secreto se comporta como una variable de entorno**: `DB_PASSWORD` responde también a
+  `db.password`.
+- **Los almacenes solo se consultan al arrancar, nunca al construir.** En una imagen nativa el
+  secreto se lee al iniciar el binario, no queda grabado en él, y los adaptadores se registran al
+  construirla, así que agregar un almacén sigue siendo agregar una dependencia.
+
+Reemplaza el `ConfigSource` que un servicio escribe a mano para desdoblar el JSON que inyecta ECS.
 
 ## Por qué un contrato propio
 
